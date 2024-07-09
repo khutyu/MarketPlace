@@ -1,13 +1,16 @@
-﻿namespace MarketPlace.Models
-{
-    public class User
-    {
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public bool IsSeller { get; set; }
+﻿using Microsoft.AspNetCore.Identity;
 
+namespace MarketPlace.Models
+{
+    public abstract class User: IdentityUser
+    {
+      
+        public int AddressId { get;set; }
+
+        public Address Address { get; set; }
+          
+        public IEnumerable<Chat> Chats { get; set; }
+        public IEnumerable<Product> Products { get; set; }
     }
 
 }

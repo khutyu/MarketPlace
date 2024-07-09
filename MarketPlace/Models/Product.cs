@@ -15,27 +15,27 @@ namespace MarketPlace.Models
         [DisplayName("Product price")]
         public decimal Price { get; set; }
 
-        [Required(ErrorMessage = "Please enter the number of items stocked.")]
-        [DisplayName("Item stocked")]
-        public int QuantityStocked { get; set; }
+        [DisplayName("Ratings")]
+        public int Ratings { get; set; }
 
+        
+        [DisplayName("Product descriptiom")]
+        public string Description { get; set; }
+      
+     
+        [DisplayName("Name of seller")]
+        [Required(ErrorMessage ="Please enter your name.")]
+        public string SellerUserName { get; set; }
 
-        public int QuantityBought { get; set; } = 0;    
-
-        [DisplayName("Product name")]
-        public string? Description { get; set; }
-
-        [DisplayName("Product seller")]
-        [Required(ErrorMessage ="Please enter the product seller")]
-        public int SellerId { get; set; }
-
+        [DisplayName("Comments")]
+        public IEnumerable<Comment> Comments { get; set; }
 
         [DisplayName("Category name")]
-        [Required(ErrorMessage ="Please enter category name")]
+        [Required(ErrorMessage = "Please enter category name")]
         public int CategoryID { get; set; }
 
-        public User Seller { get; set; }
         public Category Category { get; set; }
+       
 
 
     }
