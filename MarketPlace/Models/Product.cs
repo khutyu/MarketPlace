@@ -23,16 +23,18 @@ namespace MarketPlace.Models
         public string Description { get; set; }
       
      
-        [DisplayName("Name of seller")]
-        [Required(ErrorMessage ="Please enter your name.")]
-        public string SellerUserName { get; set; }
+        
 
         [DisplayName("Comments")]
         public IEnumerable<Comment> Comments { get; set; }
 
         [DisplayName("Category name")]
-        [Required(ErrorMessage = "Please enter category name")]
         public int CategoryID { get; set; }
+
+        [DisplayName("Name of seller")]
+        public int Id { get; set; }
+
+        public User Seller { get; set; }
 
         public Category Category { get; set; }
        
