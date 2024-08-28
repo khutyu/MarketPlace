@@ -24,7 +24,8 @@ namespace MarketPlace.Data
                      new Category { CategoryName="Clothing"},
                      new Category { CategoryName="Food"},
                      new Category { CategoryName="Education"},
-                     new Category { CategoryName="Services"}
+                     new Category { CategoryName="Services"},
+                     new Category { CategoryName="Other"}
                 );
             }
 
