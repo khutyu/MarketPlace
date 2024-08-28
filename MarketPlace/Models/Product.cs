@@ -7,7 +7,7 @@ namespace MarketPlace.Models
     public class Product
     {
         [Key]
-        public int ProductId;
+        public int ProductId { get; set; }
 
         [Required(ErrorMessage ="Please enter the product name.")]
         [DisplayName("Product name")]
