@@ -1,10 +1,11 @@
 ﻿
 using MarketPlace.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarketPlace.Data
 {
-    public class AppDbContext :DbContext
+    public class AppDbContext :IdentityDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -18,19 +19,17 @@ namespace MarketPlace.Data
         public DbSet<Message> Messages { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Address> Address { get; set; }
-        public DbSet<User> Users { get; set; }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
 
-        //    modelBuilder.Entity<Category>().ToTable("Category");
-        //    modelBuilder.Entity<Product>().ToTable("Product");
-        //    modelBuilder.Entity<Chat>().ToTable("Chat");
-        //    modelBuilder.Entity<Message>().ToTable("Message");
-        //    modelBuilder.Entity<Comment>().ToTable("Comment");
-        //    modelBuilder.Entity<Address>().ToTable("Address");
-        //    modelBuilder.Entity<User>().ToTable("User");
-        //}
+            modelBuilder.Entity<Category>().ToTable("Category");
+            modelBuilder.Entity<Product>().ToTable("Product");
+            modelBuilder.Entity<Chat>().ToTable("Chat");
+            modelBuilder.Entity<Message>().ToTable("Message");
+            modelBuilder.Entity<Comment>().ToTable("Comment");
+            modelBuilder.Entity<Address>().ToTable("Address");
+        }
     }
 }
