@@ -1,27 +1,86 @@
-﻿
-<!DOCTYPE html>
-
-<html>
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title - Market Place</title>
-    <link rel="stylesheet" asp-href-include="/lib/bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" asp-href-include="/style/custom.css" />
+    <title>@ViewBag.Title Campus Connect</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css">
+    <!-- Layout CSS -->
+    <link rel="stylesheet" href="/style/Layout.css" />
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+    <style>
+        /* Increase navbar height */
+        .navbar {
+            height: 90px; /* Adjust height as needed */
+        }
+
+        .user-profile-dropdown i {
+            font-size: 1.5em;
+            color: #0F204B;
+        }
+    </style>
 </head>
 <body>
     <header>
-      
-        
+        <nav class="navbar navbar-expand-lg bg-light">
+            <!-- Navbar Brand and Search -->
+            <div class="container-fluid d-flex align-items-center" style="padding-left:6rem">
+                <h1 class="navbar-brand">Campus Connect</h1>
+
+                <!-- Search Bar -->
+                <div class="row height d-flex justify-content-center align-items-center flex-grow-1 ms-3 me-4">
+                    <form class="d-flex w-100" id="search-bar">
+                        <i class="fa fa-search me-2"></i>
+                        <input type="text" class="form-control form-input w-100" placeholder="Search anything...">
+                    </form>
+                </div>
+
+                <!-- Hamburger Menu Button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="NavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Collapsible Navbar Content -->
+                <div id="navbarNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#">Browse</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Categories</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Featured</a></li>
+                    </ul>
+
+                    <!-- Right Side: User Profile with Dropdown -->
+                    <div class="d-flex align-items-center ms-3">
+                        <i class="fas fa-bell me-3"></i>
+                        <i class="fas fa-envelope me-4"></i>
+                        <i class="fa-solid fa-user rounded-circle"></i>
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle ms-2" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-chevron-down"></i>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
     </header>
+
     <main>
         @RenderBody()
     </main>
+
     <footer>
-        <hr />
-        
+        @* <h1 class="float-end">Campus Connect</h1> *@
     </footer>
 
-    <script asp-src-include="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
