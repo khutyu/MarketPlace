@@ -1,0 +1,123 @@
+﻿/* Carousel Styles */
+.carousel-image {
+    width: 100%; /* Ensure the image spans the full width of the carousel */
+    height: 50vh; /* Set a fixed height based on viewport height for consistency */
+    object-fit: cover; /* Ensures the image covers the container while maintaining aspect ratio */
+}
+
+.carousel-container {
+    background: #f4f4f4; /* Light gray background */
+    border-radius: 10px;
+    width: 93%;
+    margin: auto;
+    padding-bottom: 20px;
+    display: flex;
+}
+
+
+/* Categories Section */
+.categories-section {
+    padding: 20px;
+    background: #f4f4f4; /* Light gray background */
+    border-radius: 10px;
+    width: 93%;
+    margin: auto;
+    display: flex;
+    flex-direction: column; /* Ensure items are stacked */
+}
+
+.categories-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 35px;
+    justify-content: space-between; /* Distribute the categories evenly */
+    flex-wrap: wrap; /* Allow the categories to wrap on smaller screens */
+}
+
+.category {
+    flex-basis: 18%; /* Adjust the width of each category based on your layout preference */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds subtle shadow for depth */
+    border-radius: 8px; /* Optional: rounds the corners */
+    overflow: hidden; /* Ensures nothing spills out of the boundary */
+    background: #ffffff; /* White background for each category */
+    transition: transform 0.3s ease-in-out; /* Smooth transformation on hover */
+}
+
+    .category img {
+        width: 100%;
+        height: auto;
+        object-fit: cover; /* Ensure the images scale properly */
+        display: block; /* Ensures the image takes up the full container width */
+        transition: transform 0.3s ease-in-out; /* Smooth image scaling on hover */
+    }
+
+    .category p {
+        margin-top: 8px; /* Space between the image and text */
+        font-size: 1rem; /* Standard font size for the text */
+        color: #333; /* Dark grey color for text */
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .category:hover {
+        transform: scale(1.05); /* Slightly enlarges the category block on hover */
+    }
+
+        .category:hover img {
+            transform: scale(1.1); /* Slightly enlarges the image on hover */
+        }
+
+.Featured-Listings-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-top:0px;
+}
+.Featured-item {
+    flex-basis: 15%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    transition: transform 0.3s ease-in-out;
+}
+    .Featured-item img {
+        width: 100%;
+        height: auto;
+        object-fit: cover; /* Ensure the images scale properly */
+        display: block; /* Ensures the image takes up the full container width */
+        transition: transform 0.3s ease-in-out; /* Smooth image scaling on hover */
+    }
+
+    .Featured-item p {
+        color: #0d141c; /* Text color */
+        font-size: 0.8rem; /* Equivalent to 'text-base' */
+        font-weight: 500; /* Equivalent to 'font-medium' */
+        line-height: 1.5; /* Equivalent to 'leading-normal' */
+    }
+    .Featured-item:hover {
+        transform: scale(1.05); /* Slightly enlarges the category block on hover */
+    }
+        .Featured-item:hover img {
+            transform: scale(1.1); /* Slightly enlarges the image on hover */
+        }
+#price {
+    color: #6B6B6B; 
+    font-size: 0.875rem; 
+    font-weight: 400;
+    line-height: 1.5;
+    text-align:left;
+}
+
+/* Media Queries */
+@media (min-width: 768px) { /* Adjustments for tablets */
+    .category {
+        flex-basis: 45%; /* Two categories per row on medium screens */
+    }
+}
+
+@media (min-width: 992px) { /* Adjustments for desktops */
+    .category {
+        flex-basis: 18%; /* Five categories per row on large screens */
+    }
+}
