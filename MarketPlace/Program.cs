@@ -3,12 +3,16 @@ using MarketPlace.Models;
 using MarketPlace.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MarketPlace.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllersWithViews();
 //builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+
+//Adding signalR services 
+builder.Services.AddSignalR();
 
 //Database Option 1: SQL Server
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -38,9 +42,10 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=chat}/{action=Index}/{id?}");
 
 //SeedData.EnsureEntityPopulated(app);
 //SeedIdentityData.EnsureIdentityPopulated(app);
-
+// mapping existing hubs
+app.MapHub<ChatHub>("/chatHub");
 app.Run();
