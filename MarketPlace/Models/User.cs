@@ -2,11 +2,8 @@
 
 namespace MarketPlace.Models
 {
-    public  class User: IdentityUser
+    public class User : IdentityUser
     {
-      
-  
-        public int AddressId { get;set; }
         public int Ratings { get; set; } = 0;
         public Address Address { get; set; }
         public IEnumerable<Comment> Comments { get; set; }
