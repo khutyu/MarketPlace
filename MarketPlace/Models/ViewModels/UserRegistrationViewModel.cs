@@ -25,6 +25,8 @@ public class UserRegistrationViewModel
     [Required(ErrorMessage = "First name is required.")]
     public string FirstName { get; set; }
 
+    public string SecondName {get;set;}
+
     [Required(ErrorMessage = "Last name is required.")]
     public string LastName { get; set; }
 
@@ -34,6 +36,7 @@ public class UserRegistrationViewModel
     [DataType(DataType.Date)]
     public DateTime? DateOfBirth { get; set; }
 
+    [Display(Name = "Profile Picture")]
     public IFormFile ProfilePicture { get; set; }
 
     // Address properties

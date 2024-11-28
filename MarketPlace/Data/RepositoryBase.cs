@@ -1,43 +1,51 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace MarketPlace.Data
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
-        protected AppDbContext _appDbContext;
-        public RepositoryBase(AppDbContext appDbContext)
+        private readonly DbContext _context;
+        private readonly DbSet<T> _dbSet;
+        public RepositoryBase(DbContext context) 
         {
-            _appDbContext = appDbContext;
+            _context = context;
+            _dbSet = _context.Set<T>(); ;
         }
 
-        public void Create(T entity)
+
+        public async Task< IEnumerable<T>> FindAll()
         {
-            _appDbContext.Set<T>().Add(entity);
+            return await _dbSet.ToListAsync();
         }
 
-        public void Delete(T entity)
-        {
-            _appDbContext.Set<T>().Remove(entity);
-        }
-
-        public IEnumerable<T> FindAll()
-        {
-            return _appDbContext.Set<T>();
-        }
-
-        public IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression)
-        {
-            return _appDbContext.Set<T>().Where(expression);
-        }
 
         public T GetById(int id)
         {
-            return _appDbContext.Set<T>().Find(id);
+            return  _dbSet.Find(id);
         }
 
-        public void Update(T entity)
+        async Task IRepositoryBase<T>.Create(T entity)
         {
-            _appDbContext.Set<T>().Update(entity);
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        async Task IRepositoryBase<T>.Delete(T entity)
+        {
+            _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        {
+            return _dbSet.Where(expression);
+        }
+
+        async Task IRepositoryBase<T>.Update(T entity)
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
         }
     }
 }

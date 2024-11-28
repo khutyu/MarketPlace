@@ -2,7 +2,7 @@
 
 namespace MarketPlace.Data
 {
-    interface IProductRepository:IRepositoryBase<Product>
+    public interface IProductRepository:IRepositoryBase<Product>
     {
     }
 }

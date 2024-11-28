@@ -1,99 +1,155 @@
 using MarketPlace.Models;
+using Microsoft.EntityFrameworkCore;
 using MarketPlace.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MarketPlace.Data;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace MarketPlace.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")] // Only admins can access this controller
     public class AdminController : Controller
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly AppDbContext _context;
 
-        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager, AppDbContext context)
+        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public IActionResult Dashboard()
         {
-            var viewModel = new AdminDashboardViewModel
+            return View(new AdminDashboardViewModel
             {
-                TotalUsers = await _userManager.Users.CountAsync(),
-                TotalProducts = await _context.Products.CountAsync(),
-                TotalCategories = await _context.Categories.CountAsync(),
-                // PendingApprovals = await _context.Products.CountAsync(p => !p.IsApproved),
-                // TotalMessages = await _context.Messages.CountAsync(),
-                // RecentProducts = await _context.Products.OrderByDescending(p => p.CreatedAt).Take(5).ToListAsync(),
-                // RecentUsers = await _userManager.Users.OrderByDescending(u => u.RegisteredAt).Take(5).ToListAsync()
-            };
-            return View(viewModel);
+                //totalUsers = _userManager.Users.Count(),
+            });
         }
-
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _userManager.Users.ToListAsync();
-            return View(users);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ManageCategories()
-        {
-            var categories = await _context.Categories.ToListAsync();
-            return View(categories);
-        }
-
+        //Method to Change Account status
         [HttpPost]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> ChangeAccountStatus(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
-                await _userManager.DeleteAsync(user);
-                TempData["Message"] = "User deleted successfully";
+                // Example: Toggle suspension
+                user.IsSuspended = !user.IsSuspended;
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Dashboard");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error updating user account status.");
+                    // Handle errors appropriately
+                }
             }
-            return RedirectToAction(nameof(GetAllUsers));
+            else
+            {
+                return NotFound();
+            }
+            return RedirectToAction("Dashboard");
+        }
+        //Methods to delete a users account
+        [HttpGet]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            return View(user);
         }
 
-        // [HttpGet]
-        // public async Task<IActionResult> PendingApprovals()
-        // {
-        //     var pendingProducts = await _context.Products
-        //         .Where(p => !p.IsApproved)
-        //         .Include(p => p.User)
-        //         .ToListAsync();
-        //     return View(pendingProducts);
-        // }
+        // POST: Admin/DeleteUserConfirmed/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUserConfirmed(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
 
-        // [HttpPost]
-        // public async Task<IActionResult> ApproveProduct(int id)
-        // {
-        //     var product = await _context.Products.FindAsync(id);
-        //     if (product != null)
-        //     {
-        //         product.IsApproved = true;
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     return RedirectToAction(nameof(PendingApprovals));
-        // }
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
 
-        // [HttpGet]
-        // public async Task<IActionResult> SystemMessages()
-        // {
-        //     var messages = await _context.Messages
-        //         .Include(m => m.Sender)
-        //         .Include(m => m.Receiver)
-        //         .OrderByDescending(m => m.SentAt)
-        //         .ToListAsync();
-        //     return View(messages);
-        // }
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+                return RedirectToAction("Dashboard");
+
+            ModelState.AddModelError("", "Error deleting user.");
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuspendUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            user.IsSuspended = true;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+                return RedirectToAction("Dashboard");
+
+            ModelState.AddModelError("", "Error suspending user.");
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActivateUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            user.IsSuspended = false;
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+                return RedirectToAction("Dashboard");
+
+            ModelState.AddModelError("", "Error unsuspending user.");
+            return RedirectToAction("Dashboard");
+        }
+
+        //Get user Details for the _UserDetailsPartial.cshtml
+        [HttpGet]
+        public async Task<IActionResult> GetUserDetailsPartial(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var viewModel = new UserDetailsViewModel
+            {
+                User = user,
+                Roles = roles
+            };
+
+            return PartialView("_UserDetailsPartial", viewModel);
+        }
     }
+    
 }
