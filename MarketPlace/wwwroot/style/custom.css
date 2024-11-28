@@ -1,2 +1,37 @@
-﻿body {
+﻿@import "https://unpkg.com/open-props" layer(design.system);
+@import "https://unpkg.com/open-props/normalize.min.css";
+body {
+}
+layer(demo.support);
+
+@layer demo {
+    p:: before
+
+{
+    background: var(--red-5);
+    box-shadow: 0 0 var(--size-2) var(--red-5);
+}
+
+}
+
+@layer demo.support {
+    body {
+        display: grid;
+        place-content: center;
+        padding: var(--size-5);
+        gap: var(--size-5);
+    }
+
+    p {
+        position: relative;
+    }
+
+        p::before {
+            content: "";
+            position: absolute;
+            inset-inline-start: calc(var(--size-2) * 3 * -1);
+            inline-size: var(--size-2);
+            aspect-ratio: 1;
+            border-radius: var(--radius-round);
+        }
 }
