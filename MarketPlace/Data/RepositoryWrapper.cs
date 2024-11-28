@@ -2,7 +2,7 @@
 
 namespace ContosoUniversity_ver2.Data
 {
-    class RepositoryWrapper:IRepositoryWrapper
+   public  class RepositoryWrapper:IRepositoryWrapper
     {
         private AppDbContext _appDbContext;
       
@@ -48,6 +48,19 @@ namespace ContosoUniversity_ver2.Data
                     _Chats= new ChatRepository(_appDbContext);
                 }
                 return _Chats;
+            }
+            set { }
+        }
+
+        public ICategoryRepository _Categories
+        {
+            get
+            {
+                if (_Categories == null)
+                {
+                    _Categories = new CategoryRepository(_appDbContext);
+                }
+                return _Categories;
             }
             set { }
         }
