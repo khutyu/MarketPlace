@@ -1,27 +1,39 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MarketPlace.Models
 {
     public class Address
     {
+        [Key]
         public int AddressId { get; set; }
 
-        [Required(ErrorMessage = "Please enter the streetName")]
-        [MaxLength(200, ErrorMessage = "Maximum length of street name is 200 characters")]
-        public string StreetName { get; set; }
+        [Required(ErrorMessage = "Address Line 1 is required.")]
+        [Display(Name = "Address Line 1")]
+        public string AddressLine1 { get; set; }
 
-        [Required(ErrorMessage = "Please enter city name")]
-        [MaxLength(100, ErrorMessage = "Maximum length of city name is 100 characters")]
+        [Display(Name = "Address Line 2")]
+        public string AddressLine2 { get; set; }
+
+        [Required(ErrorMessage = "City is required.")]
         public string City { get; set; }
 
-        [Required(ErrorMessage = "Please enter Province name")]
-        [MaxLength(50, ErrorMessage = "Maximum length of province name is 50 characters")]
-        public string Province { get; set; }
+        [Required(ErrorMessage = "State is required.")]
+        [Display(Name = "State/Province")]
+        public string State { get; set; }
 
-
-        [Required(ErrorMessage = "Please enter post code")]
-        [MaxLength(5, ErrorMessage = "Maximum length of postal cod is 5 characters")]
+        [Required(ErrorMessage = "Postal code is required.")]
+        [Display(Name = "Postal Code")]
         public string PostalCode { get; set; }
 
+        [Required(ErrorMessage = "Country is required.")]
+        public string Country { get; set; }
+
+        // Foreign key to User
+        [Required]
+        public string UserId { get; set; }
+
+        [ForeignKey("UserId")]
+        public User User { get; set; }
     }
 }
