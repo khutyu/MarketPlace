@@ -15,7 +15,6 @@ namespace MarketPlace.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Comment> Comments { get; set; }
-        public DbSet<Address> Addresses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,13 +24,6 @@ namespace MarketPlace.Data
             modelBuilder.Entity<Product>().ToTable("Product");
             modelBuilder.Entity<Message>().ToTable("Message");
             modelBuilder.Entity<Comment>().ToTable("Comment");
-            modelBuilder.Entity<Address>().ToTable("Address");
-
-            modelBuilder.Entity<Address>()
-                .HasOne(a => a.User)
-                .WithMany() // Assuming User does not have a navigation property for Addresses
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

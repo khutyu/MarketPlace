@@ -5,47 +5,93 @@ namespace MarketPlace.Data
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
-        private readonly DbContext _context;
+        protected readonly DbContext _context;
         private readonly DbSet<T> _dbSet;
-        public RepositoryBase(DbContext context) 
+
+        public RepositoryBase(DbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<T>(); ;
+            _dbSet = _context.Set<T>();
         }
 
-
-        public async Task< IEnumerable<T>> FindAll()
+        public async Task<IEnumerable<T>> FindAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            try
+            {
+                return await _dbSet.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error fetching all entities", ex);
+            }
         }
 
-
-        public T GetById(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            return  _dbSet.Find(id);
+            try
+            {
+                return await _dbSet.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching entity with ID {id}", ex);
+            }
         }
 
-        async Task IRepositoryBase<T>.Create(T entity)
+        public async Task CreateAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _dbSet.AddAsync(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error creating entity", ex);
+            }
         }
 
-        async Task IRepositoryBase<T>.Delete(T entity)
+        public async Task DeleteAsync(T entity)
         {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error deleting entity", ex);
+            }
         }
 
         public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
         {
-            return _dbSet.Where(expression);
+            try
+            {
+                return _dbSet.Where(expression);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error finding entities by condition", ex);
+            }
         }
 
-        async Task IRepositoryBase<T>.Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _dbSet.Update(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating entity", ex);
+            }
+        }
+
+        public  async Task<IEnumerable<T>> FindAllPagedAsync(int pageNumber, int pageSize)
+        {
+            return await _dbSet.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
         }
     }
 }

@@ -2,16 +2,23 @@
 using Microsoft.EntityFrameworkCore;
 namespace MarketPlace.Data
 {
-    public  class ProductRepository: RepositoryBase<Product>,IProductRepository
+    public  class ProductRepository: RepositoryBase<Product>, IProductRepository
     {
 
-        public ProductRepository(AppDbContext context):base(context) 
+        public ProductRepository(AppDbContext _context):base(_context)
         {
         }
 
-        public IEnumerable<Product> GetProducttWithCategoryDetails(int id)
+        //public async Task<Product> GetWithCategoryDetailsAsync(int id)
+        //{
+        //    return await _context.
+        //        .Include(p => p.Category) 
+        //        .FirstOrDefaultAsync(p => p.Id == id);
+        //}
+
+        IEnumerable<Product> IProductRepository.GetWithCategoryDetailsAsync(int id)
         {
-            return _appDbContext.Products.Include(p => p.Category).Where(p => p.ProductId == id);
+            throw new NotImplementedException();
         }
     }
 }

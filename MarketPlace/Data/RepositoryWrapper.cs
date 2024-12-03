@@ -1,92 +1,115 @@
-﻿using MarketPlace.Data;
+﻿using MarketPlace.Data.Services;
+using MarketPlace.Data;
 using MarketPlace.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Routing;
 
-namespace MarketPlace.Data
+public class RepositoryWrapper : IRepositoryWrapper
 {
-    public class RepositoryWrapper:IRepositoryWrapper
-   public  class RepositoryWrapper:IRepositoryWrapper
+    private readonly AppDbContext _appDbContext;
+    private readonly AppIdentityDbContext _appIdentityDbContext;
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
+    private readonly IEmailService _emailService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUrlHelperFactory _urlHelperFactory;
+
+    // Backing fields for repositories
+    private ICommentRepository _comments;
+    private IProductRepository _products;
+    private IChatRepository _chats;
+    private ICategoryRepository _categories;
+    private IAdminUserServices _adminServices;
+
+    public RepositoryWrapper(
+        AppDbContext appDbContext,
+        AppIdentityDbContext appIdentityDbContext,
+        UserManager<User> userManager,
+        SignInManager<User> signInManager,
+        IEmailService emailService,
+        IHttpContextAccessor httpContextAccessor,
+        IUrlHelperFactory urlHelperFactory)
     {
-        private AppDbContext _appDbContext;
-        private AppIdentityDbContext _appIdentityDbContext;
-        private UserManager<User> _userManager;
+        _appDbContext = appDbContext;
+        _appIdentityDbContext = appIdentityDbContext;
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _emailService = emailService;
+        _httpContextAccessor = httpContextAccessor;
+        _urlHelperFactory = urlHelperFactory;
 
-        public RepositoryWrapper(AppDbContext appDbContext, AppIdentityDbContext appIdentityDbContext,UserManager<User> userManager)
+        _Users = new UserServices(_userManager, _signInManager, _emailService, _httpContextAccessor, _urlHelperFactory);
+    }
+
+    public IUserServices _Users { get; }
+
+    public ICommentRepository _Comments
+    {
+        get
         {
-            _appDbContext = appDbContext;
-            _appIdentityDbContext = appIdentityDbContext;
-            _userManager = userManager;
-        }
-        public IUserRepository _Users
-        {
-            get
+            if (_comments == null)
             {
-                if (_Users == null)
-                {
-                    _Users = new UserRepository(_appIdentityDbContext,_userManager);
-                }
-                return _Users;
+                _comments = new CommentRepository(_appDbContext);
             }
-            set { }
+            return _comments;
         }
-        public ICommentRepository _Comments
+        set { _comments = value; }
+    }
+
+    public IProductRepository _Products
+    {
+        get
         {
-            get
+            if (_products == null)
             {
-                if (_Comments == null)
-                {
-                    _Comments = new CommentRepository(_appDbContext);
-                }
-                return _Comments;
+                _products = new ProductRepository(_appDbContext);
             }
-            set { }
-            
+            return _products;
         }
+        set { _products = value; }
+    }
 
-        public IProductRepository _Products
+    public IChatRepository _Chats
+    {
+        get
         {
-            get
+            if (_chats == null)
             {
-                if (_Products == null)
-                {
-                    _Products= new ProductRepository(_appDbContext);
-                }
-                return _Products;
+                _chats = new ChatRepository(_appDbContext);
             }
-            set { }
+            return _chats;
         }
+        set { _chats = value; }
+    }
 
-        public IChatRepository _Chats
+    public ICategoryRepository _Categories
+    {
+        get
         {
-            get
+            if (_categories == null)
             {
-                if (_Chats == null)
-                {
-                    _Chats= new ChatRepository(_appDbContext);
-                }
-                return _Chats;
+                _categories = new CategoryRepository(_appDbContext);
             }
-            set { }
+            return _categories;
         }
+        set { _categories = value; }
+    }
 
-        public ICategoryRepository _Categories
+    IAdminUserServices IRepositoryWrapper._adminServices
+    {
+        get
         {
-            get
+            if (_adminServices == null)
             {
-                if (_Categories == null)
-                {
-                    _Categories = new CategoryRepository(_appDbContext);
-                }
-                return _Categories;
+                _adminServices = new AdminUserServices(_userManager);
             }
-            set { }
+            return _adminServices;
         }
 
+    }
 
-        public void Save()
-        {
-            _appDbContext.SaveChanges();
-        }
-
+    public void Save()
+    {
+        _appDbContext.SaveChanges();
     }
 }

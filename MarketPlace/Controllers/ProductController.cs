@@ -17,7 +17,7 @@ namespace ContosoUniversity.Controllers
 
         public IActionResult Index()
         {
-            return View(_Repository._Products.FindAll());
+            return View(_Repository._Products.FindAllAsync());
         }
 
         public IActionResult Add()
@@ -32,7 +32,7 @@ namespace ContosoUniversity.Controllers
         {
             ViewBag.Action = "Edit";
             PopulateGenreDLL();
-            return View(_Repository._Products.GetById(id));
+            return View(_Repository._Products.GetByIdAsync(id));
         }
 
         [HttpPost]
@@ -42,10 +42,10 @@ namespace ContosoUniversity.Controllers
             {
                 try
                 {
-                   
-                        _Repository._Products.Update(product);
+                
+                        _Repository._Products.UpdateAsync(product);
 
-                   
+            
                     _Repository.Save();
                     return RedirectToAction("Index");
                 }
@@ -64,13 +64,13 @@ namespace ContosoUniversity.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            return View(_Repository._Products.GetProducttWithCategoryDetails(id));
+            return View(_Repository._Products.GetWithCategoryDetailsAsync(id));
         }
 
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var student = _Repository._Products.GetById(id);
+            var student = _Repository._Products.GetByIdAsync(id);
 
             if (student == null)
                 return NotFound();
@@ -85,7 +85,7 @@ namespace ContosoUniversity.Controllers
         {
             if (product != null)
             {
-                _Repository._Products.Delete(product);
+                _Repository._Products.DeleteAsync(product);
                 _Repository.Save();
                 return RedirectToAction("Index");
             }
@@ -96,9 +96,9 @@ namespace ContosoUniversity.Controllers
             }
         }
 
-        private void PopulateGenreDLL(object selectedGenre = null)
+        private async void PopulateGenreDLL(object selectedGenre = null)
         {
-            ViewBag.Categories = new SelectList(_Repository._Categories.FindAll(),
+            ViewBag.Categories =   new SelectList( await _Repository._Categories.FindAllAsync(),
                 "CategoryId", "CategoryName", selectedGenre);
         }
     }

@@ -4,6 +4,6 @@ namespace MarketPlace.Data
 {
     public interface IProductRepository : IRepositoryBase<Product>
     {
-       IEnumerable<Product> GetProducttWithCategoryDetails(int id);
+        IEnumerable<Product> GetWithCategoryDetailsAsync(int id);
     }
 }

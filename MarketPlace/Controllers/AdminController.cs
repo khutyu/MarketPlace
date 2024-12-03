@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using MarketPlace.Data;
 
 namespace MarketPlace.Controllers
 {
@@ -13,11 +14,13 @@ namespace MarketPlace.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        protected readonly IRepositoryWrapper _repositoryWrapper;
 
-        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AdminController(UserManager<User> userManager, SignInManager<User> signInManager, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _repositoryWrapper = repositoryWrapper;
         }
 
         [HttpGet]
@@ -32,26 +35,9 @@ namespace MarketPlace.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeAccountStatus(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
-            {
-                // Example: Toggle suspension
-                user.IsSuspended = !user.IsSuspended;
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Dashboard");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Error updating user account status.");
-                    // Handle errors appropriately
-                }
-            }
-            else
-            {
-                return NotFound();
-            }
+            if(string.IsNullOrEmpty(id))
+                return BadRequest();
+            var result =   await _repositoryWrapper._adminServices.ChangeAccountStatusAsync(id);
             return RedirectToAction("Dashboard");
         }
         //Methods to delete a users account
@@ -85,27 +71,6 @@ namespace MarketPlace.Controllers
                 return RedirectToAction("Dashboard");
 
             ModelState.AddModelError("", "Error deleting user.");
-            return RedirectToAction("Dashboard");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SuspendUser(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-                return BadRequest();
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            user.IsSuspended = true;
-            var result = await _userManager.UpdateAsync(user);
-
-            if (result.Succeeded)
-                return RedirectToAction("Dashboard");
-
-            ModelState.AddModelError("", "Error suspending user.");
             return RedirectToAction("Dashboard");
         }
 

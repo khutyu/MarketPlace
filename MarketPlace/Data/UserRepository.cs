@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MarketPlace.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Identity;
 
 namespace MarketPlace.Data
 {
-    public class UserRepository : RepositoryBase<User>, IUserRepository
+    public class UserRepository : RepositoryBase<User>
     {
         protected AppIdentityDbContext _appIdentityDbContext;
         private readonly UserManager<User> _userManager;

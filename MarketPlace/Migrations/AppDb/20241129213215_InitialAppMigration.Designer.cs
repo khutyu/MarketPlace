@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MarketPlace.Migrations.AppIdentityDb
+namespace MarketPlace.Migrations.AppDb
 {
-    [DbContext(typeof(AppIdentityDbContext))]
-    [Migration("20241127060028_databaseFileds")]
-    partial class databaseFileds
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20241129213215_InitialAppMigration")]
+    partial class InitialAppMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,7 +65,7 @@ namespace MarketPlace.Migrations.AppIdentityDb
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Address");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Category", b =>
@@ -81,7 +81,7 @@ namespace MarketPlace.Migrations.AppIdentityDb
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Category");
+                    b.ToTable("Category", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>
@@ -123,7 +123,7 @@ namespace MarketPlace.Migrations.AppIdentityDb
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Message", b =>
@@ -156,7 +156,7 @@ namespace MarketPlace.Migrations.AppIdentityDb
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Product", b =>
@@ -192,7 +192,7 @@ namespace MarketPlace.Migrations.AppIdentityDb
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.User", b =>
