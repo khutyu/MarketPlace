@@ -178,7 +178,32 @@ namespace MarketPlace.Controllers
         public IActionResult ChangePassword()
         {
             return View();
-        }   
+        } 
+        public async Task<IActionResult> ChangePasswordConfirmed(ChangePasswordViewModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var result = await _repositoryWrapper._Users.ChangePasswordAsync(User.Identity.Name, model.OldPassword, model.NewPassword);
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = "Password changed successfully.";
+                        return RedirectToAction("Profile", new { username = User.Identity.Name });
+                    }
+                    return View(model);
+                }
+                else
+                {
+                    return View("ChangePassword");
+                }
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again.";
+                return View("ChangePassword");
+            }
+        }
 
         [HttpGet]
         [Authorize]

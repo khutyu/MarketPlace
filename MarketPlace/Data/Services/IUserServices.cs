@@ -8,6 +8,7 @@ namespace MarketPlace.Data.Services
         Task<bool> UpdateUserDetailsAsync(User user);
         Task<(bool Success, List<string> error)> SendResetTokenAsync(string userId);
         Task<bool> ResetPasswordAsync(string email,string token, string newPassword);
+        Task<bool> ChangePasswordAsync(string email, string oldPassword, string newPassword);
         Task<User> GetByUsernameAsync(string username);
         Task<bool> RequestAccountDeletionAsync(string userId);
         Task<User> GetUserWithAddressAsync(string userId);

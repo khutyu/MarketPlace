@@ -92,7 +92,7 @@ namespace MarketPlace.Data.Services
             }
         }
 
-         public async Task<User> GetUserWithAddressAsync(string userId)
+        public async Task<User> GetUserWithAddressAsync(string userId)
         {
             var user = await _userManager.Users
                 .Include(u => u.Address)
@@ -198,6 +198,14 @@ namespace MarketPlace.Data.Services
                 return false;
             }
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            return result.Succeeded;
+        }
+        public async Task<bool> ChangePasswordAsync(string username, string oldPassword, string newPassword){
+            var user = await _userManager.FindByNameAsync(username);
+            if(user == null){
+                return false;
+            }
+            var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
             return result.Succeeded;
         }
 
