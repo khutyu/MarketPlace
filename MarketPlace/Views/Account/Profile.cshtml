@@ -2,6 +2,20 @@
 @using System
 
 <div class="container mt-5">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            else if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
     <div class="row justify-content-center">
         <!-- Profile Picture and Username -->
         <div class="col-md-4 mb-4">
@@ -19,8 +33,7 @@
                             imageUrl = Url.Content("~/images/default-profile.png");
                         }
                     }
-                    <img src="@imageUrl" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px;" alt="Profile Picture">
-                    <h3 class="card-title">@Model.UserName</h3>
+                    <img src="@imageUrl" class="rounded-circle img-fluid mb-3" style="width: 250px; height: 300px;" alt="Profile Picture">
                 </div>
             </div>
         </div>
@@ -45,7 +58,9 @@
                     <!-- Address Field -->
                     <div class="mb-3">
                         <h6>Address</h6>
-                        <p class="text-secondary">@Model.Address</p>
+                        <p class="text-secondary">@Model.Address.AddressLine1</p>
+                        <p class="text-secondary">@Model.Address.AddressLine2</p>
+                        <p class="text-secondary">@Model.Address.City</p>
                     </div>
                     <!-- Account Status -->
                     <div class="mb-3">
@@ -66,7 +81,7 @@
                     </div>
                     <!-- Action Buttons -->
                     <div class="mt-4">
-                        <a class="btn btn-primary me-2" asp-controller="Account" asp-action="Edit">Edit Profile</a>
+                        <a class="btn btn-primary me-2" asp-controller="Account" asp-action="ProfileUpdate" asp-route-username="@User.Identity.Name">Edit Profile</a>
                         <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
                     </div>
                 </div>

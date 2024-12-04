@@ -4,8 +4,6 @@ using MarketPlace.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Matching;
-using Microsoft.Identity.Client;
 namespace MarketPlace.Controllers
 {
     public class AccountController : Controller
@@ -129,7 +127,8 @@ namespace MarketPlace.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Profile(string username){
-            var user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var _user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(_user.Id);
             return View(user);
         }
 
@@ -179,109 +178,125 @@ namespace MarketPlace.Controllers
         public IActionResult ChangePassword()
         {
             return View();
-        }      
-                // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        // [Authorize]
-        // public async Task<IActionResult> UpdatePersonalDetails(UpdatePersonalDetailsViewModel user)
-        // {
-        //     if (ModelState.IsValid)
-        //     {
-        //         var currentUser = await _userManager.GetUserAsync(User);
-        //         if (currentUser == null)
-        //         {
-        //             return RedirectToAction("Login", "Account");
-        //         }
+        }   
 
-        //         // Update Email
-        //         if (currentUser.Email != user.Email)
-        //         {
-        //             var emailResult = await _userManager.SetEmailAsync(currentUser, user.Email);
-        //             if (!emailResult.Succeeded)
-        //             {
-        //                 foreach (var error in emailResult.Errors)
-        //                 {
-        //                     ModelState.AddModelError(string.Empty, error.Description);
-        //                 }
-        //                 return View(user);
-        //             }
-        //         }
-
-        //         // Update Phone Number
-        //         if (currentUser.PhoneNumber != user.PhoneNumber)
-        //         {
-        //             var phoneResult = await _userManager.SetPhoneNumberAsync(currentUser, user.PhoneNumber);
-        //             if (!phoneResult.Succeeded)
-        //             {
-        //                 foreach (var error in phoneResult.Errors)
-        //                 {
-        //                     ModelState.AddModelError(string.Empty, error.Description);
-        //                 }
-        //                 return View(user);
-        //             }
-        //         }
-
-        //         // Update Address
-        //         if (currentUser.Address == null)
-        //         {
-        //             currentUser.Address = new Address();
-        //         }
-        //         currentUser.Address.AddressLine1 = user.AddressLine1;
-        //         currentUser.Address.AddressLine2 = user.AddressLine2;
-        //         currentUser.Address.City = user.City;
-        //         currentUser.Address.State = user.State;
-        //         currentUser.Address.PostalCode = user.PostalCode;
-        //         currentUser.Address.Country = user.Country;
-
-        //         // Update user
-        //         var result = await _userManager.UpdateAsync(currentUser);
-        //         if (result.Succeeded)
-        //         {
-        //             return RedirectToAction("UpdatePersonalDetailsConfirmation");
-        //         }
-        //         foreach (var error in result.Errors)
-        //         {
-        //             ModelState.AddModelError(string.Empty, error.Description);
-        //         }
-        //     }
-        //     return View(user);
-        // }
         [HttpGet]
         [Authorize]
         public IActionResult DeleteAccount()
         {
             return View();
-        }
+        }  
 
         [HttpGet]
         [Authorize]
-        [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> DeleteAccountConfirmed()
-        // {
-        //     var user = await _userManager.GetUserAsync(User);
 
-        //     if (user == null)
-        //     {
-        //         // User not found; redirect to login page
-        //         return RedirectToAction("Login", "Account");
-        //     }
-        //     user.IsDeletionRequested = true;
-        //     user.DeletionRequestedAt = DateTime.Now;
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> ProfileUpdate(string username)
+    {
+        var user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+        var userWithAddress = await _repositoryWrapper._Users.GetUserWithAddressAsync(user.Id);
+        if (userWithAddress == null)
+        {
+            return NotFound();
+        }
 
-        //     var result = await _userManager.UpdateAsync(user);
+        var model = new EditProfileViewModel()
+        {
+            Id = userWithAddress.Id,
+            FirstName = userWithAddress.FirstName,
+            SecondName = userWithAddress.SecondName,
+            LastName = userWithAddress.LastName,
+            Email = userWithAddress.Email,
+            PhoneNumber = userWithAddress.PhoneNumber,
+            AddressLine1 = userWithAddress.Address?.AddressLine1,
+            AddressLine2 = userWithAddress.Address?.AddressLine2,
+            City = userWithAddress.Address?.City,
+            State = userWithAddress.Address?.State,
+            PostalCode = userWithAddress.Address?.PostalCode,
+            Country = userWithAddress.Address?.Country,
+            ProfilePicture = userWithAddress.ProfilePicture
+        };
 
-        //     if (result.Succeeded)
-        //     {
-        //         await _signInManager.SignOutAsync();
-        //         return RedirectToAction("DeleteAccountConfirmation");
-        //     }
-        //     foreach (var error in result.Errors)
-        //     {
-        //         ModelState.AddModelError(string.Empty, error.Description);
-        //     }
+        return View(model);
+    }
 
-        //     return View("DeleteAccount");
-        // }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile(EditProfileViewModel model){
+        try{
+            var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
+        var userWithAddress = await _repositoryWrapper._Users.GetUserWithAddressAsync(user.Id);
+
+        if(userWithAddress == null){
+            return NotFound();
+        }
+        else{
+            
+        // Update user properties
+        userWithAddress.FirstName = model.FirstName;
+        userWithAddress.SecondName = model.SecondName;
+        userWithAddress.LastName = model.LastName;
+        userWithAddress.Email = model.Email;
+        userWithAddress.PhoneNumber = model.PhoneNumber;
+
+        // Check if Address exists
+        if (userWithAddress.Address != null)
+        {
+            // Update existing address
+            userWithAddress.Address.AddressLine1 = model.AddressLine1;
+            userWithAddress.Address.AddressLine2 = model.AddressLine2;
+            userWithAddress.Address.City = model.City;
+            userWithAddress.Address.State = model.State;
+            userWithAddress.Address.PostalCode = model.PostalCode;
+            userWithAddress.Address.Country = model.Country;
+        }
+        else
+        {
+            // Create new address and associate it with the user
+            userWithAddress.Address = new Address
+            {
+                AddressLine1 = model.AddressLine1,
+                AddressLine2 = model.AddressLine2,
+                City = model.City,
+                State = model.State,
+                PostalCode = model.PostalCode,
+                Country = model.Country,
+                UserId = user.Id
+            };
+        }
+            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
+            if(result){
+                return RedirectToAction("Profile", new { username = user.UserName });
+            }
+            else{
+                TempData["ErrorMessage"] = "An error occurred while updating your profile. Please try again.";
+                return View(model);
+            }
+
+        }
+        }
+        catch{
+            TempData["ErrorMessage"] = "An error occurred while updating your profile. Please try again.";
+            return RedirectToAction("Profile", new { username = User.Identity.Name });
+        }
+    }
+
+    public async Task<IActionResult> UpdateProfilePicture(IFormFile profilePicture)
+    {
+        var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
+        var result = await _repositoryWrapper._Users.UpdateProfilePictureAsync(user.Id, profilePicture);
+        if (result.Success)
+        {
+            TempData["SuccessMessage"] = "Profile picture updated successfully.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "An error occurred while updating your profile picture. Please try again.";
+        }
+        return RedirectToAction("Profile", new { username = user.UserName });
+
+    }
 
         [HttpPost]
         [Authorize]

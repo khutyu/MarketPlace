@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPlace.Data.Services
 {
@@ -91,9 +92,13 @@ namespace MarketPlace.Data.Services
             }
         }
 
-        public Task<User> GetUserWithAddressAsync(string userId)
+         public async Task<User> GetUserWithAddressAsync(string userId)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.Users
+                .Include(u => u.Address)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            return user;
         }
 
         public Task<bool> RequestAccountDeletionAsync(string userId)
@@ -130,9 +135,22 @@ namespace MarketPlace.Data.Services
             return await _userManager.FindByNameAsync(username);
         }
 
-        public Task<bool> UpdateUserDetailsAsync(User user)
+        public  async Task<bool> UpdateUserDetailsAsync(User user)
         {
-            throw new NotImplementedException();
+            if(user == null)
+            {
+                return false;
+            }
+            var result = await _userManager.UpdateAsync(user);
+
+            if(result.Succeeded)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<bool> SignOutAsync(string Username)
