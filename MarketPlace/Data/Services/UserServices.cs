@@ -1,8 +1,5 @@
-﻿using System;
-using Azure.Core;
-using MarketPlace.Models;
+﻿using MarketPlace.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -23,13 +20,14 @@ namespace MarketPlace.Data.Services
         IHttpContextAccessor httpContextAccessor, IUrlHelperFactory urlHelperFactory)
         {
             _userManager = userManager;
+
             _signInManager = signInManager;
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
 
             var actionContext = new ActionContext(
-        _httpContextAccessor.HttpContext,
-        _httpContextAccessor.HttpContext.GetRouteData(),
+            _httpContextAccessor.HttpContext,
+            _httpContextAccessor.HttpContext.GetRouteData(),
         new ActionDescriptor());
 
     _urlHelper = urlHelperFactory.GetUrlHelper(actionContext);
