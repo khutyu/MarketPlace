@@ -12,24 +12,104 @@
     <link rel="stylesheet" href="/style/Home_Style.css" />
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+    <!--Icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         /* Increase navbar height */
         .navbar {
             height: 90px;
-            /* Adjust height as needed */
+            background-color: #003D32 !important;
+            margin-bottom: 1rem;
+        }
+
+        .navbar-nav .nav-link,
+        .navbar-brand {
+            color: F5F6F6 !important;
         }
 
         .user-profile-dropdown i {
             font-size: 1.5em;
-            color: #0F204B;
+            color: #F5F6F6;
         }
+
+        /* Update search bar styles to match theme */
+        .form-control {
+            border: 1px solid rgba(255,255,255,0.2);
+            background-color: #F5F6F6;
+            color: black;
+        }
+
+        .form-control::placeholder {
+            color: black;
+        }
+        <>
+    .pill {
+        border-radius: 1.5rem;
+        padding: 0.25rem 1rem;
+        margin-right: 0.5rem;
+    }
+    .custom-container {
+        max-width: 95%;
+        margin: 0 auto; /* Center the container */
+    }
+    .btn-warning {
+        background-color: #FFD814;
+        border-color: #FFD814;
+        color: #000;
+    }
+    .btn-success{
+        background-color: #003D32;
+        border-color: #003D32;
+        color: #F5F6F6;
+    }
+
+    .btn-warning:hover {
+        background-color: #F7CA00;
+        border-color: #F7CA00;
+        color: #000;
+    }
+
+    .btn-warning.active {
+        background-color: transparent !important;
+        border: 0.5px solid #FFD814 !important;
+        color: #FFD814 !important;
+    }
+
+    .pill {
+        border-radius: 1.5rem;
+        padding: 0.25rem 1rem;
+        margin-right: 0.5rem;
+    }
+
+    .pill.active {
+        box-shadow: 0 0 0 2px #FFD814;
+    }
+    .icon-container {
+        background-color: #A9176F;
+        padding: 6px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 8px;
+        transition: opacity 0.2s ease;
+    }
+
+    .icon-container:hover {
+        opacity: 0.8;
+        cursor: pointer;
+    }
+
+    .icon-container i {
+        color: black;
+    }
     </style>
 </head>
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg bg-light">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <!-- Navbar Brand and Search -->
             <div class="container-fluid d-flex align-items-center" style="padding-left:6rem">
                 <h1 class="navbar-brand">Campus Connect</h1>
@@ -50,21 +130,36 @@
 
                 <!-- Collapsible Navbar Content -->
                 <div id="navbarNav" class="collapse navbar-collapse">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto me-4 ms-2">
                         <li class="nav-item"><a class="nav-link" href="#">Browse</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Categories</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Featured</a></li>
+                        <div class="d-flex align-items-center">
+                            <div class="icon-container">
+                                <i class="bi bi-chat-dots-fill"></i>
+                            </div>
+                            <div class="icon-container">
+                                <i class="bi bi-bell-fill"></i>
+                            </div>
+                        </div>
                     </ul>
 
                     <!-- Right Side: User Profile with Dropdown -->
                     <div class="d-flex align-items-center ms-9">
-                        <i class="fas fa-bell me-3"></i>
-                        <i class="fas fa-envelope me-4"></i>
-                        <i class="fa-solid fa-user rounded-circle"></i>
-                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle ms-2"
-                            id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-chevron-down"></i>
-                        </a>
+                        
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <div class="d-flex align-items-center">
+                                @await Component.InvokeAsync("UserProfile")
+                            </div>
+                        }
+                        else
+                        {
+                            <form asp-controller="Account" asp-action="Login" method="get" class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-warning">
+                                    Login
+                                </button>
+                            </form>
+                        }
 
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" asp-action="Profile" asp-controller="Account" asp-route-username="@User.Identity.Name">Profile</a></li>
@@ -100,6 +195,31 @@
 
     <!-- Bootstrap JS -->
     <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttonContainers = document.querySelectorAll('[data-button-container]');
+        
+        buttonContainers.forEach(container => {
+            const buttons = container.querySelectorAll('button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons in container
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                });
+            });
+        });
+    });
+    </script>
+
+    <!---Script sections-->
+    @RenderSection("Scripts", required: false)
+
 </body>
 
 </html>

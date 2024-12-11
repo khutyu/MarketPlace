@@ -85,7 +85,7 @@ namespace MarketPlace.Data.Services
             }
             else
             {
-                message.Add( "Incorrect email and password combination");
+                message.Add( "Incorrect username and password combination");
                 return (false,message);
             }
         }

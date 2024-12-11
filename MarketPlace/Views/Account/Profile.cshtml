@@ -1,114 +1,238 @@
 @model MarketPlace.Models.User
 @using System
+@{
+    ViewBag.Title = "Profile";
+}
 
-<div class="container mt-5">
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    @TempData["ErrorMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Header Section -->
+<div class="position-relative">
+    <div class="custom-container">
+        <img alt="Profile banner" class="w-100" 
+            style="height: 16rem; object-fit: cover; border-radius: 1.5rem; margin-bottom: 5rem;" 
+            src="~/images/carousel/main-building-spotlight.jpg"/>
+    </div>
+    
+    <div class="position-absolute d-flex align-items-center p-3 ms-3 pb-4 w-100" 
+        style="top: 13rem; left: 0;">
+        <img alt="Profile picture" class="rounded"
+            style="width: 7rem; height: 7.5rem; margin-left: 3rem ;"
+            src="https://storage.googleapis.com/a1aa/image/t948Q2tJIOZBBFqnnu21O5peypFONamTKpB3exB3eio9fXkPB.jpg"/>
+        <div class="ms-3">
+            <h1 class="fs-4 fw-bold mb-0 pt-2">@Model.FirstName @Model.LastName</h1>
+            <p class="text-muted mb-0">120 Listings</p>
+        </div>
+        <div class="ms-auto me-5" data-button-container>
+            <button class="btn btn-warning me-2 pill">Follow</button>
+            <button class="btn btn-warning pill">Chat</button>
+        </div>
+    </div>
+
+    <div class="custom-container p-3 border-bottom mb-3" data-button-container>
+        <button class="btn btn-warning me-2 pill">Home</button>
+        <button class="btn btn-warning me-2 pill" >Details</button>
+        <button class="btn btn-warning me-2 pill">Gallery</button>
+        <button class="btn btn-warning me-2 pill">Videos</button>
+    </div>
+</div>
+<!--Main content-->
+<div class="container-fluid ms-5">
+    <div class="row align-items-start">
+        <!-- Left Section -->
+        <div class="col-md-4 me-5 shadow p-3 rounded">
+            <section>
+                <h2 class="fs-5 fw-bold mb-3">Personal Details</h2>
+                <div class="d-flex flex-column gap-2" data-button-container>
+                    <button class="btn btn-warning w-100 active pill">Profile</button>
+                    <button class="btn btn-warning w-100 pill">My Listings</button>
+                    <button class="btn btn-warning me-2 pill" data-section="details">Edit Personal Details</button>
+                    <button class="btn btn-warning w-100 pill">Gallery</button>
                 </div>
-            }
-            else if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["SuccessMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </section>
+        </div>
+        
+        <!-- Right Section -->
+        <div class="col-md-7 shadow p-3 rounded" >
+            <div class="d-flex align-items-center gap-2 d-block" id="listingSection" >
+                <!-- Profile Picture -->
+                <div>
+                    @await Component.InvokeAsync("UserProfile")
                 </div>
-            }
-    <div class="row justify-content-center">
-        <!-- Profile Picture and Username -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    @{
-                        string imageUrl;
-                        if (Model.ProfilePicture != null && Model.ProfilePicture.Length > 0)
-                        {
-                            var base64 = Convert.ToBase64String(Model.ProfilePicture);
-                            imageUrl = $"data:image/png;base64,{base64}";
-                        }
-                        else
-                        {
-                            imageUrl = Url.Content("~/images/default-profile.png");
-                        }
-                    }
-                    <img src="@imageUrl" class="rounded-circle img-fluid mb-3" style="width: 250px; height: 300px;" alt="Profile Picture">
-                    <h4>@Model.FirstName @Model.LastName</h4>
-                    <!-- User Rating -->
-                    @{
-                        decimal userRating = Model.Ratings;
-                        int fullStars = (int)userRating;
-                        bool halfStar = (userRating - fullStars) >= 0.5m;
-                        int emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-                    }
-                    <div class="mb-2">
-                        @for (int i = 0; i < fullStars; i++)
-                        {
-                            <i class="fas fa-star text-warning"></i>
-                        }
-                        @if (halfStar)
-                        {
-                            <i class="fas fa-star-half-alt text-warning"></i>
-                        }
-                        @for (int i = 0; i < emptyStars; i++)
-                        {
-                            <i class="far fa-star text-warning"></i>
-                        }
-                        <span class="ms-2">(@userRating.ToString("0.0"))</span>
+                
+                <!-- Input Box with Icons -->
+                <div class="position-relative w-100">
+                    <input type="text" 
+                        class="form-control border-0 bg-light m-2" 
+                        style="padding: 1rem 0.75rem; height: 3.5rem;"
+                        placeholder="What are you selling today?" 
+                        aria-label="Product description input">
+                    <div class="pe-3">
+                        <i class="bi bi-image me-3 fs-3"></i>
+                        <i class="bi bi-paperclip me-3 fs-3"></i>
+                        <i class="bi bi-geo-alt fs-3"></i>
                     </div>
+            </div>
+            </div>
+            <!-- Account Details Section (Hidden by default) -->
+        <div id="detailsSection" class="d-none">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fs-5 mb-0">Account Information</h3>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="editToggle">
+            <i class="bi bi-pencil"></i> Edit
+        </button>
+    </div>
+
+    <form asp-action="UpdateProfile" asp-controller="Account" method="post">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control edit-input" disabled required
+                    value="@Model.FirstName" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control edit-input" disabled required
+                    value="@Model.LastName" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control edit-input" disabled required
+                    value="@Model.Email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="PhoneNumber" class="form-label">Phone</label>
+                <input asp-for="PhoneNumber" class="form-control edit-input" disabled required
+                    value="@Model.PhoneNumber" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Address.AddressLine1" class="form-label">Street Address</label>
+                <input asp-for="Address.AddressLine1" class="form-control edit-input" disabled required
+                    value="@Model.Address.AddressLine1" />
+                <span asp-validation-for="Address.AddressLine1" class="text-danger"></span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Address.City" class="form-label">City</label>
+                    <input asp-for="Address.City" class="form-control edit-input" disabled required
+                        value="@Model.Address.City" />
+                    <span asp-validation-for="Address.City" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Address.State" class="form-label">State</label>
+                    <input asp-for="Address.State" class="form-control edit-input" disabled required
+                        value="@Model.Address.State" />
+                    <span asp-validation-for="Address.State" class="text-danger"></span>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="Address.PostalCode" class="form-label">Zip Code</label>
+                    <input asp-for="Address.PostalCode" class="form-control edit-input" disabled required
+                        value="@Model.Address.PostalCode" />
+                    <span asp-validation-for="Address.PostalCode" class="text-danger"></span>
                 </div>
             </div>
+            <div class="col-12 mt-3 d-none" id="saveButtons">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-outline-secondary" id="cancelEdit">Cancel</button>
+            </div>
         </div>
-        <!-- Account Information -->
-        <div class="col-md-8">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h4 class="card-title">Account Information</h4>
-                    <hr>
-                    <div class="mb-3">
-                        <h6>Full Name</h6>
-                        <p class="text-secondary">@($"{Model.FirstName} {Model.LastName}")</p>
+    </form>
+</div>
+</div>
+<div class="container-fluid ms-5">
+    <div class="row pt-3">
+        <h2 class="fs-5 fw-bold mb-3">Recent Listings</h2>
+        <div class="col shadow p-3">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+                @foreach (var i in Enumerable.Range(1,4)) {
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="~/images/Laptop-catergory.jpg" 
+                                class="card-img-top"
+                                style="height: 180px; object-fit: cover;"
+                                alt="Listing image">
+                            <div class="card-body">
+                                <h5 class="card-title">Product Title</h5>
+                                <p class="card-text text-muted mb-2">$299.99</p>
+                                <p class="card-text small">Posted 2 days ago</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <h6>Email</h6>
-                        <p class="text-secondary">@Model.Email</p>
-                    </div>
-                    <div class="mb-3">
-                        <h6>Phone</h6>
-                        <p class="text-secondary">@Model.PhoneNumber</p>
-                    </div>
-                    <!-- Address Field -->
-                    <div class="mb-3">
-                        <h6>Address</h6>
-                        <p class="text-secondary">@Model.Address.AddressLine1</p>
-                        <p class="text-secondary">@Model.Address.AddressLine2</p>
-                        <p class="text-secondary">@Model.Address.City</p>
-                    </div>
-                    <!-- Account Status -->
-                    <div class="mb-3">
-                        <h6>Account Status</h6>
-                        @if (Model.IsSuspended)
-                        {
-                            <p class="text-danger">Suspended</p>
-                        }
-                        else
-                        {
-                            <p class="text-success">Active</p>
-                        }
-                    </div>
-                    <!-- Role -->
-                    <div class="mb-3">
-                        <h6>Role</h6>
-                        <p class="text-secondary"></p>
-                    </div>
-                    <!-- Action Buttons -->
-                    <div class="mt-4">
-                        <a class="btn btn-primary me-2" asp-controller="Account" asp-action="ProfileUpdate" asp-route-username="@User.Identity.Name">Edit Profile</a>
-                        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="ChangePassword">Change Password</a>
-                    </div>
-                </div>
+                }
             </div>
         </div>
     </div>
 </div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            const detailsBtn = document.querySelector('[data-section="details"]');
+            const listingSection = document.getElementById('listingSection');
+            const detailsSection = document.getElementById('detailsSection');
+            console.log(detailsBtn, listingSection, detailsSection);
+
+            if (detailsBtn && listingSection && detailsSection) {
+                detailsBtn.addEventListener('click', function() {
+                    // Toggle sections
+                    listingSection.classList.replace('d-block','d-none');
+                    detailsSection.classList.replace('d-none','d-block');
+                    console.log('button clicked', detailsSection);
+                });
+            }
+
+            
+        });
+    </script>
+    <script>
+        const editToggle = document.getElementById('editToggle');
+        const saveButtons = document.getElementById('saveButtons');
+        const saveButton = document.querySelector('button[type="submit"]');
+        const inputs = document.querySelectorAll('.edit-input');
+
+        function validateForm() {
+            let isValid = true;
+            inputs.forEach(input => {
+                if(input.value.length < 1 && input.hasAttribute('required')) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        function updateSaveButtonState() {
+            saveButton.disabled = !validateForm();
+            saveButton.classList.toggle('btn-secondary', !validateForm());
+            saveButton.classList.toggle('btn-warning', validateForm());
+        }
+
+        editToggle.addEventListener('click', function() {
+            inputs.forEach(input => input.disabled = !input.disabled);
+            saveButtons.classList.toggle('d-none');
+            editToggle.classList.toggle('d-none');
+            updateSaveButtonState();
+        });
+
+        document.getElementById('cancelEdit').addEventListener('click', function() {
+            inputs.forEach(input => {
+                input.disabled = true;
+                input.value = input.defaultValue;
+            });
+            saveButtons.classList.add('d-none');
+            editToggle.classList.remove('d-none');
+            updateSaveButtonState();
+        });
+
+        inputs.forEach(input => {
+            input.addEventListener('input', updateSaveButtonState);
+        });
+
+        // Set initial state
+        updateSaveButtonState();
+    </script>
+    
+    
+}

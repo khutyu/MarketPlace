@@ -1,0 +1,17 @@
+@model MarketPlace.Models.User
+
+@if(User.Identity.IsAuthenticated && Model.ProfilePicture != null)
+{
+    <img src="@Model.ProfilePicture" 
+    alt="Profile Picture" 
+    class="rounded-circle" 
+    style="width: 40px; height: 40px; object-fit: cover;" />
+}
+else
+{
+    <img src="/images/test-profile.jpg" 
+    alt="Profile Picture" 
+    class="rounded-circle" 
+    style="width: 40px; height: 40px; object-fit: cover;" />   
+
+}
