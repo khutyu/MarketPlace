@@ -3,6 +3,7 @@ using MarketPlace.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace ContosoUniversity.Controllers
 {
@@ -64,7 +65,7 @@ namespace ContosoUniversity.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            return View(_Repository._Products.GetProducttWithCategoryDetails(id));
+            return View(_Repository._Products.GetById(id));
         }
 
         [HttpGet]
@@ -98,7 +99,7 @@ namespace ContosoUniversity.Controllers
 
         private void PopulateGenreDLL(object selectedGenre = null)
         {
-            ViewBag.Categories = new SelectList(_Repository._Categories.FindAll(),
+            ViewBag.Categories = new SelectList((IEnumerable)_Repository._Category.FindAll(),
                 "CategoryId", "CategoryName", selectedGenre);
         }
     }

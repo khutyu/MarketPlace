@@ -1,51 +1,44 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
 using System.Linq.Expressions;
 
 namespace MarketPlace.Data
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
-        private readonly DbContext _context;
-        private readonly DbSet<T> _dbSet;
-        public RepositoryBase(DbContext context) 
+        protected AppDbContext _appDbContext;
+        public RepositoryBase(AppDbContext appDbContext)
         {
-            _context = context;
-            _dbSet = _context.Set<T>(); ;
+            _appDbContext = appDbContext;
         }
 
-
-        public async Task< IEnumerable<T>> FindAll()
+        public void Create(T entity)
         {
-            return await _dbSet.ToListAsync();
+            _appDbContext.Set<T>().Add(entity);
         }
 
+        public void Delete(T entity)
+        {
+            _appDbContext.Set<T>().Remove(entity);
+        }
+
+        public IEnumerable<T> FindAll()
+        {
+            return _appDbContext.Set<T>();
+        }
+
+        public IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        {
+            return _appDbContext.Set<T>().Where(expression);
+        }
 
         public T GetById(int id)
         {
-            return  _dbSet.Find(id);
+            return _appDbContext.Set<T>().Find(id);
         }
 
-        async Task IRepositoryBase<T>.Create(T entity)
+        public void Update(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
-        }
-
-        async Task IRepositoryBase<T>.Delete(T entity)
-        {
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync();
-        }
-
-        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
-        {
-            return _dbSet.Where(expression);
-        }
-
-        async Task IRepositoryBase<T>.Update(T entity)
-        {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            _appDbContext.Set<T>().Update(entity);
         }
     }
 }

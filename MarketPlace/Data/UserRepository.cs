@@ -7,12 +7,12 @@ namespace MarketPlace.Data
 {
     public class UserRepository : RepositoryBase<User>, IUserRepository
     {
-        protected AppIdentityDbContext _appIdentityDbContext;
+        
         private readonly UserManager<User> _userManager;
 
-        public UserRepository(AppIdentityDbContext appIdentityDbContext,UserManager<User> userManager):base(appIdentityDbContext)
+        public UserRepository(AppDbContext appIdentityDbContext,UserManager<User> userManager):base(appIdentityDbContext)
         {
-            _appIdentityDbContext = appIdentityDbContext;
+          
             _userManager = userManager;
         }
 
@@ -56,7 +56,7 @@ namespace MarketPlace.Data
                     errors.Add("File size exceeds 2MB");
                     return (false, errors);
                 }
-                var userToUpdate = await _appIdentityDbContext.Users.FindAsync(user);
+                var userToUpdate = await _appDbContext.Users.FindAsync(user);
                 if(userToUpdate == null)
                 {
                     errors.Add("User not found");
@@ -68,19 +68,19 @@ namespace MarketPlace.Data
                     userToUpdate.ProfilePicture = memoryStream.ToArray();
                     userToUpdate.ProfilePictureContentType = profilePicture.ContentType;
                 }
-                await _appIdentityDbContext.SaveChangesAsync();
+                await _appDbContext.SaveChangesAsync();
             }
             return (true, errors);
         }
         public async Task<bool> UpdateUserDetailsAsync(User user)
         {
-            var existingUser = FindByCondition(u => u.Id == user.Id)
+            User existingUser = FindByCondition(u => u.Id == user.Id)
                 .Include(u => u.Address)
                 .FirstOrDefault();
             if (existingUser == null) return false;
 
-            _appIdentityDbContext.Entry(existingUser).CurrentValues.SetValues(user);
-            await _appIdentityDbContext.SaveChangesAsync();
+            _appDbContext.Entry(existingUser).CurrentValues.SetValues(user);
+            await _appDbContext.SaveChangesAsync();
             return true;
         }
 
@@ -92,8 +92,8 @@ namespace MarketPlace.Data
 
             user.DeletionRequestedAt = DateTime.Now;
             user.IsDeletionRequested = true;
-            _appIdentityDbContext.Update(user);
-            await _appIdentityDbContext.SaveChangesAsync();
+            _appDbContext.Update(user);
+            await _appDbContext.SaveChangesAsync();
             return true;
         }
 
@@ -111,8 +111,8 @@ namespace MarketPlace.Data
             }
 
             user.Address = address;
-            _appIdentityDbContext.Update(user);
-            await _appIdentityDbContext.SaveChangesAsync();
+            _appDbContext.Update(user);
+            await _appDbContext.SaveChangesAsync();
             return true;
 
         }
@@ -132,8 +132,8 @@ namespace MarketPlace.Data
 
             user.IsSuspended = !user.IsSuspended; // Toggle status
 
-            _appIdentityDbContext.Update(user);
-            await _appIdentityDbContext.SaveChangesAsync();
+            _appDbContext.Update(user);
+            await _appDbContext.SaveChangesAsync();
 
             return user.IsSuspended;
         }

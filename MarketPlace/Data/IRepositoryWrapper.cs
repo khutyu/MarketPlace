@@ -6,6 +6,7 @@
         IChatRepository _Chats { get; }
         ICommentRepository _Comments { get; }
         IUserRepository _Users { get; }
+        ICategoryRepository _Category { get; }
         void Save();
     }
 }

@@ -72,17 +72,14 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            @if (User.Identity.IsAuthenticated)
-                            {
+                            <!-- for authenticated -->
                                 <form asp-controller="Account" asp-action="Logout" method="post">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="dropdown-item">Logout</button>
                                 </form>
-                            }
-                            else
-                            {
+                           <!-- for not logged in-->
                                 <li><a class="dropdown-item" href="#">Login</a></li>
-                            }
+                          
                         </ul>
                     </div>
                 </div>

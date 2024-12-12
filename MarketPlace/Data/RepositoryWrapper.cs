@@ -68,6 +68,19 @@ namespace MarketPlace.Data
             set { }
         }
 
+        public ICategoryRepository _Category
+        {
+            get
+            {
+                if (_Category == null)
+                {
+                    _Category = new CategoryRepository(_appDbContext);
+                }
+                return _Category;
+            }
+            set { }
+            
+        }
 
         public void Save()
         {

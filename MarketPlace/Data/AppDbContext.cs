@@ -26,12 +26,8 @@ namespace MarketPlace.Data
             modelBuilder.Entity<Message>().ToTable("Message");
             modelBuilder.Entity<Comment>().ToTable("Comment");
             modelBuilder.Entity<Address>().ToTable("Address");
-
-            modelBuilder.Entity<Address>()
-                .HasOne(a => a.User)
-                .WithMany() // Assuming User does not have a navigation property for Addresses
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<Chat>().ToTable("Chat");
         }
     }
 }
