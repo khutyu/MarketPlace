@@ -1,0 +1,117 @@
+@model MarketPlace.Models.User
+<style>
+    .profile-picture-container {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .profile-picture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .profile-picture-container:hover .profile-picture-overlay {
+        opacity: 1;
+    }
+
+    .camera-icon {
+        color: white;
+        font-size: 2rem;
+    }
+
+    .banner-container {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .banner-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 1.5rem;
+    }
+
+    .banner-container:hover .banner-overlay {
+        opacity: 1;
+    }
+
+    .banner-camera-icon {
+        color: white;
+        font-size: 3rem;
+    }
+</style>
+<div class="position-relative">
+    <div class="custom-container">
+        <div class="banner-container">
+            <img alt="Profile banner" 
+                class="w-100" 
+                style="height: 16rem; object-fit: cover; border-radius: 1.5rem;" 
+                src="~/images/carousel/main-building-spotlight.jpg"/>
+            <div class="banner-overlay">
+                <i class="bi bi-camera-fill banner-camera-icon"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="position-absolute d-flex align-items-center p-3  pb-4 w-100 mt-3" 
+        style="top: 13rem; left: 0;">
+        <div class="profile-picture-container ms-5">
+            <img alt="Profile picture" 
+                class="rounded-circle border border-4 border-white"
+                style="width: 7rem; height: 7rem; object-fit: cover;"
+                src="@Model.ProfilePicture"/>
+            <div class="profile-picture-overlay rounded"></div>
+                <i class="bi bi-camera-fill camera-icon"></i>
+            </div>
+        </div>
+        <div class="ms-3"></div>
+            <h1 class="fs-4 fw-bold mb-0">@Model.FirstName @Model.LastName</h1>
+            <div class="d-flex align-items-center mb-1"></div>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= Math.Floor((double)Model.Rating))
+                    {
+                        <i class="bi bi-star-fill text-warning"></i>
+                    }
+                    else if (i - Model.Rating <= 0.5)
+                    {
+                        <i class="bi bi-star-half text-warning"></i>
+                    }
+                    else
+                    {
+                        <i class="bi bi-star text-warning"></i>
+                    }
+                }
+                <span class="ms-2 text-muted">(Reviews)</span>
+            </div>
+            <p class="text-muted mb-0">120 Listings</p>
+        </div>
+        <div class="ms-auto me-5" data-button-container></div>
+            <button class="btn btn-warning me-2 pill">Follow</button>
+            <button class="btn btn-warning pill">Chat</button>
+        </div>
+    </div>
+
+    <div class="p-4 border-bottom mb-3 ms-3" style="margin-top:5.5rem ;" data-button-container></div>
+        <button class="btn btn-warning me-2 pill">Home</button>
+        <button class="btn btn-warning me-2 pill" >Details</button>
+        <button class="btn btn-warning me-2 pill">Gallery</button>
+        <button class="btn btn-warning me-2 pill">Videos</button>
+    </div>
