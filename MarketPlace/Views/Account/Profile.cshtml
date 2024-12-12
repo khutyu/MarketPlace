@@ -117,7 +117,7 @@
     </div>
 
     <div class="p-4 border-bottom mb-3 ms-3" style="margin-top:5.5rem ;" data-button-container>
-        <button class="btn btn-warning me-2 pill">Home</button>
+        <a class="btn btn-warning active pill" asp-action="Profile" asp-controller="Account" asp-route-username="@User.Identity.Name">Profile</a>
         <button class="btn btn-warning me-2 pill" >Details</button>
         <button class="btn btn-warning me-2 pill">Gallery</button>
         <button class="btn btn-warning me-2 pill">Videos</button>
@@ -129,11 +129,11 @@
         <!-- Left Section -->
         <div class="col-md-4 me-5 shadow p-3 rounded">
             <section>
-                <h2 class="fs-5 fw-bold mb-3">Personal Details</h2>
+                <h2 class="fs-5 fw-bold mb-3">Profile</h2>
                 <div class="d-flex flex-column gap-2" data-button-container>
-                    <a class="btn btn-warning w-100 active pill" asp-action="Profile" asp-controller="Account" asp-route-username="@User.Identity.Name">Profile</a>
+                    <a class="btn btn-warning me-2 pill" data-section="details">Edit Details</a>
+                    <a class="btn btn-warning w-100  pill"  asp-action="ManageListings" asp-controller="Products">Manage Listings</a>
                     <a class="btn btn-warning w-100 pill">My Listings</a>
-                    <button class="btn btn-warning me-2 pill" data-section="details">Edit Personal Details</button>
                     <button class="btn btn-warning w-100 pill">Gallery</button>
                 </div>
             </section>

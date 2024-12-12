@@ -3,8 +3,9 @@ using MarketPlace.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
-namespace ContosoUniversity.Controllers
+namespace MarketPlace.Controllers
 {
     public class ProductsController : Controller
     {
@@ -17,7 +18,7 @@ namespace ContosoUniversity.Controllers
 
         public IActionResult Index()
         {
-            return View(_Repository._Products.FindAllAsync());
+            return View(_Repository._Products.FindAll());
         }
 
         public IActionResult Add()
@@ -32,7 +33,7 @@ namespace ContosoUniversity.Controllers
         {
             ViewBag.Action = "Edit";
             PopulateGenreDLL();
-            return View(_Repository._Products.GetByIdAsync(id));
+            return View(_Repository._Products.GetById(id));
         }
 
         [HttpPost]
@@ -43,7 +44,7 @@ namespace ContosoUniversity.Controllers
                 try
                 {
                 
-                        _Repository._Products.UpdateAsync(product);
+                        _Repository._Products.Update(product);
 
             
                     _Repository.Save();
@@ -64,13 +65,13 @@ namespace ContosoUniversity.Controllers
         [HttpGet]
         public IActionResult Details(int id)
         {
-            return View(_Repository._Products.GetWithCategoryDetailsAsync(id));
+            return View(_Repository._Products.GetById(id));
         }
 
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            var student = _Repository._Products.GetByIdAsync(id);
+            var student = _Repository._Products.GetById(id);
 
             if (student == null)
                 return NotFound();
@@ -85,7 +86,7 @@ namespace ContosoUniversity.Controllers
         {
             if (product != null)
             {
-                _Repository._Products.DeleteAsync(product);
+                _Repository._Products.Delete(product);
                 _Repository.Save();
                 return RedirectToAction("Index");
             }
@@ -95,10 +96,15 @@ namespace ContosoUniversity.Controllers
                 return View(product);
             }
         }
+        [HttpGet]
+        public IActionResult ManageListings()
+        {
+            return View(_Repository._Products.FindAll());
+        }
 
         private async void PopulateGenreDLL(object selectedGenre = null)
         {
-            ViewBag.Categories =   new SelectList( await _Repository._Categories.FindAllAsync(),
+            ViewBag.Categories = new SelectList((IEnumerable)_Repository._Categories.FindAll(),
                 "CategoryId", "CategoryName", selectedGenre);
         }
     }

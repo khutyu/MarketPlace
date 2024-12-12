@@ -24,6 +24,9 @@ namespace MarketPlace.Data
             modelBuilder.Entity<Product>().ToTable("Product");
             modelBuilder.Entity<Message>().ToTable("Message");
             modelBuilder.Entity<Comment>().ToTable("Comment");
+            modelBuilder.Entity<Address>().ToTable("Address");
+            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<Chat>().ToTable("Chat");
         }
     }
 }

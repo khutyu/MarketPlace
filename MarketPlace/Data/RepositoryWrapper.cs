@@ -82,31 +82,22 @@ public class RepositoryWrapper : IRepositoryWrapper
         set { _chats = value; }
     }
 
-    public ICategoryRepository _Categories
-    {
-        get
+        public ICategoryRepository _Category
         {
-            if (_categories == null)
+            get
             {
-                _categories = new CategoryRepository(_appDbContext);
+                if (_Category == null)
+                {
+                    _Category = new CategoryRepository(_appDbContext);
+                }
+                return _Category;
             }
-            return _categories;
-        }
-        set { _categories = value; }
-    }
-
-    IAdminUserServices IRepositoryWrapper._adminServices
-    {
-        get
-        {
-            if (_adminServices == null)
-            {
-                _adminServices = new AdminUserServices(_userManager);
-            }
-            return _adminServices;
+            set { }
+            
         }
 
-    }
+    public ICategoryRepository _Categories => throw new NotImplementedException();
+
 
     public void Save()
     {

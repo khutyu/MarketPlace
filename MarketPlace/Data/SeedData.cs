@@ -30,7 +30,7 @@ public class SeedData
 
     public static void PopulateDatabase(IApplicationBuilder app)
     {
-        AppIdentityDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppIdentityDbContext>();
+        AppDbContext context = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
 
         if (context.Database.GetPendingMigrations().Any())
         {

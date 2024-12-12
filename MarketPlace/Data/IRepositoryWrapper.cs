@@ -7,9 +7,8 @@ namespace MarketPlace.Data
         IProductRepository _Products { get; }
         IChatRepository _Chats { get; }
         ICommentRepository _Comments { get; }
-        ICategoryRepository _Categories { get; }
         IUserServices _Users { get; }
-        IAdminUserServices _adminServices { get; }
+        ICategoryRepository _Categories { get; }
         void Save();
     }
 }
