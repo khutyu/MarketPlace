@@ -1,0 +1,194 @@
+@model SearchViewModel
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container-fluid px-4 py-5">
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="d-flex gap-3 align-items-center">
+                <h2 class="fs-4 fw-bold mb-0">Search Results</h2>
+                <span class="text-muted">(@Model.TotalResults results)</span>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="q" value="@Model.Query" 
+                    class="form-control" placeholder="Search...">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filters and Results -->
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filters</h5>
+                    <form method="get" id="filterForm">
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Categories</label>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                        name="categories" value="@category.CategoryId"
+                                        @(Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "")>
+                                    <label class="form-check-label">
+                                        @category.CategoryName
+                                    </label>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Price Range</label>
+                            <div class="d-flex gap-2">
+                                <input type="number" class="form-control" name="minPrice" 
+                                    placeholder="Min" value="@Model.MinPrice">
+                                <input type="number" class="form-control" name="maxPrice" 
+                                    placeholder="Max" value="@Model.MaxPrice">
+                            </div>
+                        </div>
+
+                        <!-- Sort -->
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2">Sort By</label>
+                            <select class="form-select" name="sort">
+                                <option value="relevance">Relevance</option>
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                                <option value="newest">Newest First</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="col-lg-9">
+            @if (!Model.Products.Any())
+            {
+                <div class="empty-state text-center py-5">
+                    <div class="empty-state-icon mb-4">
+                        <i class="bi bi-shop text-muted"></i>
+                    </div>
+                    <h3 class="fs-4 fw-bold mb-3">No Products Found</h3>
+                    <p class="text-muted mb-4">
+                        We couldn't find any products matching your criteria.<br>
+                        Try adjusting your filters or search terms.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/Products" class="btn btn-warning pill">
+                            <i class="bi bi-grid me-2"></i>Browse All Products
+                        </a>
+                        <button onclick="clearFilters()" class="btn btn-outline-secondary pill">
+                            <i class="bi bi-x-circle me-2"></i>Clear Filters
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col">
+                            <div class="card h-100 product-card">
+                                <img src="" class="card-img-top" 
+                                    style="height: 200px; object-fit: cover;" 
+                                    alt="@product.ProductName">
+                                <div class="card-body">
+                                    <h5 class="card-title text-truncate">@product.ProductName</h5>
+                                    <p class="card-text text-muted mb-2">@product.Description</p>
+                                    <p class="fw-bold text-success mb-0">@product.Price.ToString("C")</p>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0">
+                                    <a href="/Products/Details/@product.ProductId" 
+                                    class="btn btn-warning w-100 pill">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @for (int i = 1; i <= Model.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="?page=@i&q=@Model.Query">@i</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,.1)!important;
+    }
+
+    .pill {
+        border-radius: 50px;
+    }
+
+    .page-link {
+        border-radius: 50%;
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-item.active .page-link {
+        background-color: #FFD814;
+        border-color: #FFD814;
+        color: #000;
+    }
+
+    .empty-state {
+        padding: 4rem 2rem;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+    }
+</style>
+
+<script>
+    function clearFilters() {
+        // Reset all form inputs
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+        document.querySelector('select[name="sort"]').value = 'relevance';
+        // Submit the form
+        document.getElementById('filterForm').submit();
+    }
+</script>

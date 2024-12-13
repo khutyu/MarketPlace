@@ -323,7 +323,13 @@ namespace MarketPlace.Controllers
 
     }
 
-        [HttpPost]
+    //Actions for Account settings
+    public IActionResult Settings(){
+        return View();
+    }
+
+
+    [HttpPost]
         [Authorize]
         public async Task<IActionResult> Logout()
         {
@@ -336,5 +342,8 @@ namespace MarketPlace.Controllers
         {
             return View();
         }
+
+
+        
     }
 }

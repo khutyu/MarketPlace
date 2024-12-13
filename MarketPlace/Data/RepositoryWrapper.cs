@@ -82,21 +82,20 @@ public class RepositoryWrapper : IRepositoryWrapper
         set { _chats = value; }
     }
 
-        public ICategoryRepository _Category
+        public ICategoryRepository _Categories
         {
             get
             {
-                if (_Category == null)
+                if (_categories == null)
                 {
-                    _Category = new CategoryRepository(_appDbContext);
+                    _categories = new CategoryRepository(_appDbContext);
                 }
-                return _Category;
+                return _categories;
             }
             set { }
             
         }
 
-    public ICategoryRepository _Categories => throw new NotImplementedException();
 
 
     public void Save()
