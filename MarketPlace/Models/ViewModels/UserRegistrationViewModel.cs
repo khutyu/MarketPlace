@@ -21,6 +21,7 @@ public class UserRegistrationViewModel
     [Compare("Password", ErrorMessage = "Passwords do not match.")]
     [DataType(DataType.Password)]
     public string ConfirmPassword { get; set; }
+    public string ConfirmEmail { get; set; }
 
     [Required(ErrorMessage = "First name is required.")]
     public string FirstName { get; set; }
