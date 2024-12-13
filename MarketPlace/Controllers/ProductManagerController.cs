@@ -7,16 +7,16 @@ using System.Collections;
 
 namespace ContosoUniversity.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductManagerController : Controller
     {
         private readonly IRepositoryWrapper _Repository;
 
-        public ProductsController(IRepositoryWrapper Repository)
+        public ProductManagerController(IRepositoryWrapper Repository)
         {
             _Repository = Repository;
         }
 
-        public IActionResult Index()
+        public IActionResult Listing()
         {
             return View(_Repository._Products.FindAll());
         }
