@@ -27,7 +27,7 @@
                     <td class="text-center">
                         <div class="btn-group" role="group">
                             <!-- Suspend Button -->
-                            <form asp-controller="Admin" asp-action="ChangeAccountStatus" asp-route-id="@user.Id"
+                            <form asp-controller="Admin" asp-action="@(user.IsSuspended ? "ActivateUser":"SuspendUser")" asp-route-id="@user.Id"
                                 method="post" class="d-inline">
                                 @if(user.IsSuspended)
                                 {

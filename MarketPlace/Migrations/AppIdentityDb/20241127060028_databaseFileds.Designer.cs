@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MarketPlace.Migrations.AppDb
+namespace MarketPlace.Migrations.AppIdentityDb
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20241129213215_InitialAppMigration")]
-    partial class InitialAppMigration
+    [DbContext(typeof(AppIdentityDbContext))]
+    [Migration("20241127060028_databaseFileds")]
+    partial class databaseFileds
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,7 +65,7 @@ namespace MarketPlace.Migrations.AppDb
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Address");
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Category", b =>
@@ -81,7 +81,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>
@@ -123,7 +123,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment", (string)null);
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Message", b =>
@@ -156,7 +156,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Message", (string)null);
+                    b.ToTable("Message");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Product", b =>
@@ -192,7 +192,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.User", b =>

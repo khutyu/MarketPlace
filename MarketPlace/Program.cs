@@ -2,8 +2,6 @@ using MarketPlace.Models;
 using MarketPlace.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MarketPlace.Data.Services;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
-builder.Services.AddScoped<IUserServices, UserServices>();
-builder.Services.AddTransient<IEmailService, EmailService>();
+
 
 // Database Contexts
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -38,7 +35,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login"; // Set the login path
 });
-
 var app = builder.Build();
 
 // Middleware

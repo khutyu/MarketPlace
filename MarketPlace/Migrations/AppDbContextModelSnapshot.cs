@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarketPlace.Migrations
 {
-    [DbContext(typeof(AppIdentityDbContext))]
-    partial class AppIdentityDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AppDbContext))]
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -62,7 +62,7 @@ namespace MarketPlace.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Address", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Category", b =>
@@ -78,7 +78,7 @@ namespace MarketPlace.Migrations
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Category");
+                    b.ToTable("Category", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>
@@ -120,7 +120,7 @@ namespace MarketPlace.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Message", b =>
@@ -153,7 +153,7 @@ namespace MarketPlace.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Product", b =>
@@ -189,7 +189,7 @@ namespace MarketPlace.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("MarketPlace.Models.User", b =>
@@ -204,30 +204,12 @@ namespace MarketPlace.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletionRequestedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeletionRequested")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSuspended")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -252,17 +234,8 @@ namespace MarketPlace.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<byte[]>("ProfilePicture")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ProfilePictureContentType")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Ratings")
                         .HasColumnType("int");
-
-                    b.Property<string>("SecondName")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");

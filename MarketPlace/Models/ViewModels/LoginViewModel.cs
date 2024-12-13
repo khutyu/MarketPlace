@@ -7,8 +7,6 @@ namespace MarketPlace.Models.ViewModels
         [Required]
         public string Username { get; set; }
 
-        public string Email { get; set; }
-
         [Required]
         [DataType(DataType.Password)]
         [UIHint("password")]
