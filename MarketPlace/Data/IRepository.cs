@@ -2,14 +2,15 @@
 
 namespace MarketPlace.Data
 {
-    public interface IRepositoryBase<T>
+    public interface IRepositoryBase<T> where T : class
     {
-        T GetById(int id);
-        IEnumerable<T> FindAll();
-        IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression);
-        void Create(T entity);
-        void Update(T entity);
-        void Delete(T entity);
+        Task<T> GetByIdAsync(int id);
+        Task<IEnumerable<T>> FindAllAsync();
+        IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
+        Task CreateAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task DeleteAsync(T entity);
 
+        Task<IEnumerable<T>> FindAllPagedAsync(int pageNumber, int pageSize);
     }
 }

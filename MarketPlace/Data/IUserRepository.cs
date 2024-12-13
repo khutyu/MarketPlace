@@ -13,6 +13,6 @@ namespace MarketPlace.Data
         Task<bool> UpdateAddressAsync(string userId, Address address);
         Task<User> GetUserWithAddressAsync(string userId);
         Task<bool> ChangeAccountStatus(string userId);
-        Task<(bool Success, IEnumerable<string> Errors)> CreateUserAsync(User user, string password, IFormFile profilePicture = null);
+        Task<(bool Success, IEnumerable<string> Errors)> CreateUserAsync(User user, string password);
     }
 }

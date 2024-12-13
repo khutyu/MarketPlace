@@ -1,12 +1,15 @@
-﻿namespace MarketPlace.Data
+﻿using MarketPlace.Data.Services;
+
+namespace MarketPlace.Data
 {
-     public interface IRepositoryWrapper
+    public interface IRepositoryWrapper
     {
         IProductRepository _Products { get; }
         IChatRepository _Chats { get; }
         ICommentRepository _Comments { get; }
-        IUserRepository _Users { get; }
-        ICategoryRepository _Category { get; }
+        ICategoryRepository _Categories { get; }
+        IUserServices _Users { get; }
+        IAdminUserServices _adminServices { get; }
         void Save();
     }
 }
