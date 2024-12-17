@@ -1,6 +1,8 @@
 using MarketPlace.Data;
+using MarketPlace.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
+[Route("Account/Settings")]
 public class SettingsController: Controller
 {
     private readonly IRepositoryWrapper _Repository;
@@ -11,6 +13,6 @@ public class SettingsController: Controller
     }
     public IActionResult Index()
     {
-        return View(_Repository._Categories.FindAll());
+        return View("~/Views/Account/Settings/Index.cshtml",new AccountSettingsViewModel{});
     }
 }
