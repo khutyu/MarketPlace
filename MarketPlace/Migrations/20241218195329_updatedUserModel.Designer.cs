@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MarketPlace.Migrations.AppDb
+namespace MarketPlace.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20241212134353_Update-product-model")]
-    partial class Updateproductmodel
+    [DbContext(typeof(AppIdentityDbContext))]
+    [Migration("20241218195329_updatedUserModel")]
+    partial class updatedUserModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,7 +81,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasKey("CategoryId");
 
-                    b.ToTable("Category", (string)null);
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>
@@ -99,7 +99,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Chat", (string)null);
+                    b.ToTable("Chat");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Comment", b =>
@@ -123,7 +123,7 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comment", (string)null);
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Message", b =>
@@ -156,7 +156,37 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Message", (string)null);
+                    b.ToTable("Message");
+                });
+
+            modelBuilder.Entity("MarketPlace.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notification");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Product", b =>
@@ -210,7 +240,43 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
+                });
+
+            modelBuilder.Entity("MarketPlace.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("Review");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.User", b =>
@@ -224,6 +290,9 @@ namespace MarketPlace.Migrations.AppDb
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletionRequestedAt")
                         .HasColumnType("datetime2");
@@ -273,10 +342,19 @@ namespace MarketPlace.Migrations.AppDb
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<byte[]>("ProfileBanner")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ProfileBannerUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("ProfilePicture")
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("ProfilePictureContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
@@ -305,7 +383,7 @@ namespace MarketPlace.Migrations.AppDb
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -475,6 +553,13 @@ namespace MarketPlace.Migrations.AppDb
                         .HasForeignKey("ChatId");
                 });
 
+            modelBuilder.Entity("MarketPlace.Models.Notification", b =>
+                {
+                    b.HasOne("MarketPlace.Models.User", null)
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserId");
+                });
+
             modelBuilder.Entity("MarketPlace.Models.Product", b =>
                 {
                     b.HasOne("MarketPlace.Models.Category", "Category")
@@ -490,6 +575,13 @@ namespace MarketPlace.Migrations.AppDb
                     b.Navigation("Category");
 
                     b.Navigation("Seller");
+                });
+
+            modelBuilder.Entity("MarketPlace.Models.Review", b =>
+                {
+                    b.HasOne("MarketPlace.Models.User", null)
+                        .WithMany("Reviews")
+                        .HasForeignKey("UserId1");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -556,7 +648,11 @@ namespace MarketPlace.Migrations.AppDb
 
                     b.Navigation("Comments");
 
+                    b.Navigation("Notifications");
+
                     b.Navigation("Products");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

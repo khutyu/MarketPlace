@@ -5,24 +5,25 @@
 namespace MarketPlace.Migrations
 {
     /// <inheritdoc />
-    public partial class editRatingproperty : Migration
+    public partial class updatedUserModelterms : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Ratings",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsAgreedToTerms",
                 table: "AspNetUsers",
-                newName: "Rating");
+                type: "bit",
+                nullable: false,
+                defaultValue: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Rating",
-                table: "AspNetUsers",
-                newName: "Ratings");
+            migrationBuilder.DropColumn(
+                name: "IsAgreedToTerms",
+                table: "AspNetUsers");
         }
     }
 }

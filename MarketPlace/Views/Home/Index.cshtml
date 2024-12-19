@@ -3,6 +3,8 @@
     ViewData["Title"] = "Home";
 }
 
+@await Html.PartialAsync("_Alerts")
+
 <style>
     .hero-section {
         background: linear-gradient(rgba(0,61,50,0.9), rgba(0,61,50,0.8)), 
@@ -66,7 +68,7 @@
 </style>
 
 <!-- Hero Section -->
-<div class="hero-section">
+<div class="hero-section rounded">
     <div class="container">
         <div class="rounded row justify-content-center">
             <div class="col-md-8 text-center">

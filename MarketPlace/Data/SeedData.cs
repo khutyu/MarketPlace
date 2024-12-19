@@ -10,18 +10,33 @@ public class SeedData
         public string Username { get; set; }
         public string Email { get; set; }
         public string Role { get; set; }
+        public Gender gender { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public bool IsAgreedToTerms { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
     }
 
     private static readonly List<CustomUserModel> SeedUsers = new()
     {
         new CustomUserModel
-        {
+        {   FirstName = "Meggie",
+            LastName = "Griffin",
+            IsAgreedToTerms = true,
+            DateOfBirth = DateTime.Now,
+            gender = Gender.Female,
             Username = "Maggie",
             Email = "maggie@example.com",
             Role = "Buyer"
         },
         new CustomUserModel
         {
+            FirstName = "Meggie",
+            LastName = "Griffin",
+            IsAgreedToTerms = true,
+            DateOfBirth = DateTime.Now,
+            gender = Gender.Female,
             Username = "Admin",
             Email = "admin@example.com",
             Role = "Administrator"
@@ -70,9 +85,15 @@ public class SeedData
                     {
                         user = new User
                         {
+                            IsAgreedToTerms = true,
+                            Address = new Address(),
+                            DateOfBirth = seedUser.DateOfBirth,
+                            Gender = seedUser.gender,
+                            LastName = seedUser.LastName,
+                            FirstName = seedUser.FirstName,
                             UserName = seedUser.Username,
                             Email = seedUser.Email,
-                            EmailConfirmed = true // Required for login
+                            EmailConfirmed = true
                         };
 
                         var result = await userManager.CreateAsync(user, "Password123!");
