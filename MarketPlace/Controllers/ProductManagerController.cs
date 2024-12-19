@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 
-namespace ContosoUniversity.Controllers
+namespace MarketPlace.Controllers
 {
     public class ProductManagerController : Controller
     {
@@ -115,6 +115,74 @@ namespace ContosoUniversity.Controllers
         {
             ViewBag.Categories = new SelectList(_Repository._Categories.FindAll(),
                 "CategoryId", "CategoryName", selectedGenre);
+        }
+
+        public IActionResult Listing()
+        {
+            return View(_Repository._Products.FindAll());
+        }
+
+        public IActionResult Search(string q, List<int> categories, decimal? minPrice, 
+        decimal? maxPrice, string sort = "relevance", int page = 1)
+        {
+            var query = _Repository._Products.FindAll();
+
+            // Apply text search
+            if (!string.IsNullOrEmpty(q))
+            {
+                query = query.Where(p => p.ProductName.Contains(q) || 
+                                    p.Description.Contains(q));
+            }
+
+            // Apply category filter
+            if (categories != null && categories.Any())
+            {
+                query = query.Where(p => categories.Contains(p.CategoryID));
+            }
+
+            // Apply price range filter
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            // Apply sorting
+            query = sort switch
+            {
+                "price_asc" => query.OrderBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.Price),
+                "newest" => query.OrderByDescending(p => p.DateAdded),
+                _ => query.OrderByDescending(p => p.ProductName) // Default sort
+            };
+
+            // Calculate pagination
+            int pageSize = 12;
+            int totalResults = query.Count();
+            var products = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Build view model
+            var viewModel = new SearchViewModel
+            {
+                Query = q,
+                Products = products,
+                Categories = _Repository._Categories.FindAll().ToList(),
+                SelectedCategories = categories ?? new List<int>(),
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                SortBy = sort,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalResults = totalResults
+            };
+
+            return View(viewModel);
         }
     }
 }
