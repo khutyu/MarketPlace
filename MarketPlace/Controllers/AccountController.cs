@@ -5,6 +5,7 @@ using MarketPlace.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -47,7 +48,10 @@ namespace MarketPlace.Controllers
                 }
                 else{
                     foreach (var error in result.message)
-                    return RedirectToAction("Index", "Home");
+                    {
+                        ModelState.TryAddModelError(string.Empty, error);
+                    }
+                    return View(loginModel);
                 }
             }
             return View(loginModel);
