@@ -86,7 +86,15 @@ public class SeedData
                         user = new User
                         {
                             IsAgreedToTerms = true,
-                            Address = new Address(),
+                            Address = new Address{
+                                AddressLine1 = "test Address",
+                                AddressLine2 = "test Address",
+                                City = "test City",
+                                Country = "test Country",
+                                PostalCode = "test PostalCode",
+                                State = "test State"
+
+                            },
                             DateOfBirth = seedUser.DateOfBirth,
                             Gender = seedUser.gender,
                             LastName = seedUser.LastName,

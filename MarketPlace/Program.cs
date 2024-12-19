@@ -18,9 +18,6 @@ builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDbContext<AppIdentityDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
-
 // Identity Configuration
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
@@ -31,7 +28,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequireDigit = true;
     options.User.RequireUniqueEmail = true;
 })
-.AddEntityFrameworkStores<AppIdentityDbContext>()
+.AddEntityFrameworkStores<AppDbContext>() // Use existing DbContext
 .AddDefaultTokenProviders();
 
 builder.Services.ConfigureApplicationCookie(options =>
@@ -53,6 +50,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Seed roles and users
-//SeedData.PopulateDatabase(app);
+SeedData.PopulateDatabase(app);
 
 app.Run();

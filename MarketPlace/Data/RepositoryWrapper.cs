@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Routing;
 public class RepositoryWrapper : IRepositoryWrapper
 {
     private readonly AppDbContext _appDbContext;
-    private readonly AppIdentityDbContext _appIdentityDbContext;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly IEmailService _emailService;
@@ -23,7 +22,6 @@ public class RepositoryWrapper : IRepositoryWrapper
 
     public RepositoryWrapper(
         AppDbContext appDbContext,
-        AppIdentityDbContext appIdentityDbContext,
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         IEmailService emailService,
@@ -31,7 +29,6 @@ public class RepositoryWrapper : IRepositoryWrapper
         IUrlHelperFactory urlHelperFactory)
     {
         _appDbContext = appDbContext;
-        _appIdentityDbContext = appIdentityDbContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _emailService = emailService;
