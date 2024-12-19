@@ -1,4 +1,54 @@
 ﻿@model IEnumerable<Product>
 
+<div class="categories-section">
+    <h2>Categories</h2>
+    <div class="categories-container">
+        <div class="category">
+            <img src="~/images/book-category.jpg" alt="Textbooks">
+            <p>Textbooks</p>
+        </div>
+        <div class="category">
+            <img src="~/images/Laptop-catergory.jpg" alt="Furniture">
+            <p>Furniture</p>
+        </div>
+        <div class="category">
+            <img src="~/images/Appliance-catergory.jpg" alt="Appliances">
+            <p>Appliances</p>
+        </div>
+        <div class="category">
+            <img src="~/images/clothing-category.jpg" alt="Clothing">
+            <p>Clothing</p>
+        </div>
+        <div class="category">
+            <img src="~/images/Laptop-catergory.jpg" alt="Electronics">
+            <p>Electronics</p>
+        </div>
+    </div>
+</div>
+
+
+@if(Model.Any())
+{
+    @foreach (Product p in Model)
+    {
+        <div class="Featured-item">
+            <img src="~/images/@(p.ProductName).jpg" alt="@p.ProductName">
+            <p>@p.ProductName</p>
+            <p id="price">@p.Price</p>
+        </div>
+    }
+}
+else
+{
+    <div class="empty-state">
+        <i class="bi bi-shop empty-state-icon"></i>
+        <h3 class="fs-4 mb-3">No Listings Yet</h3>
+        <p class="text-muted mb-4">Start selling by creating your first listing!</p>
+        <a class="btn btn-warning pill" asp-action="Add" asp-controller="Product" data-bs-toggle="modal" data-bs-target="#addProductModal">
+            <i class="bi bi-plus-lg me-2"></i>New Listing
+        </a>
+    </div>
+}
+
 
 

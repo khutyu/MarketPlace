@@ -9,9 +9,9 @@ namespace MarketPlace.Data
         {
         }
 
-        public IEnumerable<Product> GetProducttWithCategoryDetails(int id)
+        public IEnumerable<Product> GetProductstWithCategoryDetails()
         {
-            return _appDbContext.Products.Include(p => p.Category).Where(p => p.ProductId == id);
+            return _appDbContext.Products.Include(p => p.Category);
         }
     }
 }
