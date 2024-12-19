@@ -108,6 +108,50 @@
     .icon-container i {
         color: black;
     }
+    .message-container {
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        @@keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .message-container {
+            max-width: 400px;
+            width: 90%;
+            margin-top: 1rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        @@keyframes slideDown {
+            from {
+                transform: translateY(-100%) translateX(-50%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) translateX(-50%);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -116,7 +160,9 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
             <!-- Navbar Brand and Search -->
             <div class="container-fluid d-flex align-items-center" style="padding-left:6rem">
-                <h1 class="navbar-brand">Campus Connect</h1>
+                <a asp-action="Index" asp-controller="Home" class="text-decoration-none">
+                    <h1 class="navbar-brand">Campus Connect</h1>
+                </a>
 
                 <!-- Search Bar -->
                 <div class="row height d-flex justify-content-center align-items-center flex-grow-1 ms-3 me-4">
@@ -137,14 +183,54 @@
                     <ul class="navbar-nav ms-auto me-4 ms-2">
                         <li class="nav-item"><a class="nav-link" href="#">Browse</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Categories</a></li>
-                        <div class="d-flex align-items-center">
+                        @if(User.Identity.IsAuthenticated){
+                            <div class="d-flex align-items-center">
                             <div class="icon-container">
                                 <i class="bi bi-chat-dots-fill"></i>
                             </div>
-                            <div class="icon-container">
-                                <i class="bi bi-bell-fill"></i>
+                            <div class="icon-container dropdown">
+                                <a href="#" class="text-decoration-none position-relative" id="notificationDropdown" data-bs-toggle="dropdown" arial-expanded="false">
+                                    <i class="bi bi-bell-fill"></i>
+                                    @if(ViewBag.UnreadNotifications > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle">
+                                            @ViewBag.UnreadNotificationCount
+                                            <span class="visually-hidden"> unread messages</span>
+                                        </span>
+                                    }
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 300px;">
+                                    <li class="dropdown-header">Notifications</li>
+                                    @if (ViewBag.Notifications != null && ViewBag.Notifications.Count > 0)
+                                    {
+                                        foreach (var notification in ViewBag.Notifications)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" href="@notification.Link">
+                                                    @if (!notification.IsRead)
+                                                    {
+                                                        <span class="badge bg-warning text-dark me-2">New</span>
+                                                    }
+                                                    @notification.Message
+                                                </a>
+                                            </li>
+                                        }
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-center" href="@Url.Action("Notifications", "Account")">
+                                                View All Notifications
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="dropdown-item text-muted">No new notifications</li>
+                                    }
+                                </ul>
                             </div>
                         </div>
+                        }
+                        
                     </ul>
 
                     <!-- Right Side: User Profile with Dropdown -->
@@ -171,12 +257,12 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item px-3 py-2" asp-controller="Account" asp-action="Settings">
+                                            <a class="dropdown-item px-3 py-2" asp-controller="Account" asp-action="Settings" asp-route-username="@User.Identity.Name">
                                                 <i class="bi bi-gear me-2"></i>Settings
                                             </a>
                                         </li>
                                         <li>
-                                            <a class="dropdown-item px-3 py-2" asp-controller="Listing" asp-action="MyListings">
+                                            <a class="dropdown-item px-3 py-2" asp-controller="ProductManager" asp-action="ManageListings">
                                                 <i class="bi bi-box me-2"></i>My Listings
                                             </a>
                                         </li>
@@ -224,7 +310,7 @@
         const buttonContainers = document.querySelectorAll('[data-button-container]');
         
         buttonContainers.forEach(container => {
-            const buttons = container.querySelectorAll('button');
+            const buttons = container.querySelectorAll('a');
             
             buttons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -237,6 +323,85 @@
             });
         });
     });
+    </script>
+    <script>
+    // Add rotation animation to chevron icons
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+        button.addEventListener('click', () => {
+            const icon = button.querySelector('.bi-chevron-down');
+            icon.style.transform = icon.style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    });
+    </script>
+        <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 10000);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationIcon = document.getElementById('notificationDropdown');
+            console.log(notificationIcon)
+            notificationIcon.addEventListener('click', function() {
+                fetchNotifications();
+            });
+
+            // Function to fetch notifications
+            function fetchNotifications() {
+                fetch('/Account/TestGetNotifications')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update notification count badge
+                        const badge = notificationIcon.querySelector('.badge');
+                        if (data.unreadCount > 0) {
+                            if (badge) {
+                                badge.textContent = data.unreadCount;
+                            } else {
+                                const newBadge = document.createElement('span');
+                                newBadge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger';
+                                newBadge.textContent = data.unreadCount;
+                                notificationIcon.appendChild(newBadge);
+                            }
+                        } else if (badge) {
+                            badge.remove();
+                        }
+
+                        // Update dropdown menu
+                        const dropdownMenu = document.querySelector('.dropdown-menu');
+                        dropdownMenu.innerHTML = '<li class="dropdown-header">Notifications</li>';
+
+                        if (data.notifications.length > 0) {
+                            data.notifications.forEach(notification => {
+                                const item = document.createElement('li');
+                                item.innerHTML = `
+                                    <a class="dropdown-item" href="${notification.link}">
+                                        ${notification.isRead ? '' : '<span class="badge bg-warning text-dark me-2">New</span>'}
+                                        ${notification.message}
+                                    </a>`;
+                                dropdownMenu.appendChild(item);
+                            });
+                            dropdownMenu.innerHTML += `
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-center" href="/Account/GetNotifications">
+                                        View All Notifications
+                                    </a>
+                                </li>`;
+                        } else {
+                            dropdownMenu.innerHTML += '<li class="dropdown-item text-muted">No new notifications</li>';
+                        }
+                    })
+                    .catch(error => console.error('Error fetching notifications:', error));
+            }
+
+            // Fetch notifications every minute
+            setInterval(fetchNotifications, 60000);
+            fetchNotifications();
+        });
     </script>
 
     <!---Script sections-->
