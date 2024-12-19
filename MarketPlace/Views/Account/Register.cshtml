@@ -308,6 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registrationForm');
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
+    const RegisterBtn = document.getElementById('');
     const submitBtn = document.getElementById('submitBtn');
     const progressBar = document.querySelector('.progress-bar');
 
@@ -406,11 +407,15 @@ document.addEventListener('DOMContentLoaded', function() {
             nextBtn.removeAttribute('disabled');
             nextBtn.classList.remove('btn-secondary');
             nextBtn.classList.add('btn-warning');
+            submitBtn.classList.add("btn-success")
+            submitBtn.classList.remove("btn-primary")
         } else {
             console.log(nextBtn);
             nextBtn.setAttribute('disabled', 'disabled');
             nextBtn.classList.remove('btn-warning');
             nextBtn.classList.add('btn-secondary');
+            submitBtn.classList.add("btn-primary");
+            submitBtn.classList.remove("btn-success");
         }
     }
 
