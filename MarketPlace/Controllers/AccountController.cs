@@ -47,9 +47,7 @@ namespace MarketPlace.Controllers
                 }
                 else{
                     foreach (var error in result.message)
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
             }
             return View(loginModel);
@@ -103,6 +101,7 @@ namespace MarketPlace.Controllers
             var result  = await _repositoryWrapper._Users.CreateUserAsync(user, model.Password);
 
             if(!result.Success)
+            if(!result.Success)
             {
                 // Provide feedback to the user
                 foreach (var error in result.message)
@@ -114,6 +113,11 @@ namespace MarketPlace.Controllers
             var signInResult = await _repositoryWrapper._Users.SignInAsync(model.Username, model.Password);
             if (!signInResult.Success)
             {
+                // Provide feedback to the user
+                foreach (var error in signInResult.message)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
                 // Provide feedback to the user
                 foreach (var error in signInResult.message)
                 {
@@ -165,6 +169,7 @@ namespace MarketPlace.Controllers
         public async Task<IActionResult> ResetPassword(string Email)
         {
             if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
+            if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
             {
                 var result =  await _repositoryWrapper._Users.SendResetTokenAsync(Email);
 
@@ -200,7 +205,7 @@ namespace MarketPlace.Controllers
         public IActionResult ChangePassword()
         {
             return View();
-        } 
+        }
         public async Task<IActionResult> ChangePasswordConfirmed(ChangePasswordViewModel model)
         {
             try

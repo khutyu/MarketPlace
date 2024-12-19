@@ -15,13 +15,14 @@ namespace MarketPlace.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         protected readonly IRepositoryWrapper _repositoryWrapper;
-
         public AdminController(UserManager<User> userManager, SignInManager<User> signInManager, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _repositoryWrapper = repositoryWrapper;
         }
+
+        
 
         [HttpGet]
         public IActionResult Dashboard()

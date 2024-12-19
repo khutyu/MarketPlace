@@ -53,6 +53,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Seed roles and users
-SeedData.PopulateDatabase(app);
+//SeedData.PopulateDatabase(app);
 
 app.Run();

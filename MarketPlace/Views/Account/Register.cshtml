@@ -80,6 +80,83 @@
 </style>
 
 <div class="container">
+<style>
+    .step-progress {
+        position: relative;
+        padding: 30px 0;
+    }
+    .step-progress .progress {
+        height: 4px;
+        background: #eee;
+    }
+    .step-dots {
+        position: absolute;
+        width: 100%;
+        top: 28px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .step-dot {
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+    .step-dot.active {
+        border-color: #FFD814;
+        background: #FFD814;
+    }
+    .step-dot.completed {
+        background: #003D32;
+        border-color: #003D32;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #003D32;
+        border-color: #003D32;
+    }
+    .btn-primary:hover {
+        background-color: #002820;
+        border-color: #002820;
+    }
+    .upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+    
+    .upload-container:hover {
+        border-color: #003D32;
+    }
+    
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin: 1rem auto;
+        border-radius: 50%;
+        display: none;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg p-4 mt-5">
@@ -286,6 +363,15 @@
                             </label>
                             <span asp-validation-for="IsAgreedToTerms" class="text-danger d-block"></span>
                         </div>
+                        
+                        <!-- Terms Checkbox -->
+                        <div class="form-check mb-3">
+                            <input asp-for="IsAgreedToTerms" class="form-check-input" type="checkbox" required />
+                            <label asp-for="IsAgreedToTerms" class="form-check-label">
+                                I agree to the <a href="#" class="text-decoration-none">terms and conditions</a>
+                            </label>
+                            <span asp-validation-for="IsAgreedToTerms" class="text-danger d-block"></span>
+                        </div>
                     </div>
 
                     <!-- Navigation Buttons -->
@@ -295,6 +381,13 @@
                         <button type="submit" class="btn btn-success" id="submitBtn" style="display:none">Register</button>
                     </div>
                 </form>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" style="display:none">Previous</button>
+                        <button type="button" class="btn btn-warning" id="nextBtn">Next</button>
+                        <button type="submit" class="btn btn-success" id="submitBtn" style="display:none">Register</button>
+                    </div>
             </div>
         </div>
     </div>
