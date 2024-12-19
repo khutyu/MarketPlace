@@ -9,16 +9,9 @@ namespace MarketPlace.Data
         {
         }
 
-        //public async Task<Product> GetWithCategoryDetailsAsync(int id)
-        //{
-        //    return await _context.
-        //        .Include(p => p.Category) 
-        //        .FirstOrDefaultAsync(p => p.Id == id);
-        //}
-
-        IEnumerable<Product> IProductRepository.GetWithCategoryDetailsAsync(int id)
+        public IEnumerable<Product> GetProductstWithCategoryDetails()
         {
-            throw new NotImplementedException();
+            return _appDbContext.Products.Include(p => p.Category);
         }
     }
 }

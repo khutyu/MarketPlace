@@ -1,6 +1,5 @@
 @model MarketPlace.Models.ProfileViewModel
 @using System
-@using Microsoft.IdentityModel.Tokens
 @{
     ViewBag.Title = "Profile";
 }
@@ -51,6 +50,7 @@
         align-items: center;
         opacity: 0;
         transition: opacity 0.3s ease;
+        border-radius: 1.5rem;
     }
 
     .banner-container:hover .banner-overlay {
@@ -98,23 +98,23 @@
 <div class="position-relative">
     <div class="custom-container">
         <div class="banner-container">
-            <img src="@Url.Content(Model.user.ProfileBannerUrl ?? "~/images/main-building-spotlight.jpg")" 
-                alt="Profile Banner" 
-                class="w-100 rounded"
-                style="height: 300px; object-fit: cover;">
-            <div class="banner-overlay rounded">
+            <img alt="Profile banner" 
+                class="w-100" 
+                style="height: 16rem; object-fit: cover; border-radius: 1.5rem;" 
+                src="@Model.user.ProfileBannerUrl"/>
+            <div class="banner-overlay">
                 <i class="bi bi-camera-fill banner-camera-icon"></i>
             </div>
         </div>
     </div>
     
-    <div class="position-absolute d-flex align-items-center p-3  pb-4 w-100 " 
-        style="top: 15rem; left: 0; margin-top: 2rem;">
+    <div class="position-absolute d-flex align-items-center p-3  pb-4 w-100 mt-3" 
+        style="top: 13rem; left: 0;">
         <div class="profile-picture-container ms-5">
-            <img src="@Url.Content(Model.user.ProfilePictureUrl ?? "~/images/profile-default.webp")" 
-                alt="Profile picture" 
+            <img alt="Profile picture" 
                 class="rounded"
-                style="width: 7rem; height: 7rem; object-fit: cover;">
+                style="width: 7rem; height: 7rem; object-fit: cover;"
+                src="@Model.user.ProfilePictureUrl"/>
             <div class="profile-picture-overlay rounded">
                 <i class="bi bi-camera-fill camera-icon"></i>
             </div>
@@ -164,8 +164,6 @@
                 <div class="d-flex flex-column gap-2" data-button-container>
                     <a class="btn btn-warning w-100 pill active " data-section="reviews">Reviews</a>
                     <a class="btn btn-warning me-2 pill" data-section="details">Account Information</a>
-                    <a class="btn btn-warning w-100  pill"  asp-action="ManageListings" asp-controller="ProductManager">Manage Listings</a>
-                    <a class="btn btn-warning w-100 pill">My Listings</a>
                 </div>
             </section>
         </div>

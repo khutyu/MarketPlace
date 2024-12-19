@@ -1,22 +1,24 @@
-﻿using MarketPlace.Data;
+﻿using Azure.Identity;
+using MarketPlace.Data;
 using MarketPlace.Models;
 using MarketPlace.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Matching;
-using Microsoft.Identity.Client;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Web;
+
 namespace MarketPlace.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
-        private readonly IWebHostEnvironment _environment;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IWebHostEnvironment hostingEnvironment, IRepositoryWrapper repositoryWrapper)
+        public AccountController(IRepositoryWrapper repositoryWrapper)
         {
             _repositoryWrapper = repositoryWrapper;
-            _environment = hostingEnvironment;
         }
 
         [HttpGet]
@@ -45,9 +47,7 @@ namespace MarketPlace.Controllers
                 }
                 else{
                     foreach (var error in result.message)
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
+                    return RedirectToAction("Index", "Home");
                 }
             }
             return View(loginModel);
@@ -77,6 +77,9 @@ namespace MarketPlace.Controllers
             // Create a new User object based on the model
             var user = new User
             {
+                IsAgreedToTerms = model.IsAgreedToTerms,
+                Gender = model.gender,
+                DateOfBirth = model.DateOfBirth,
                 UserName = model.Username,
                 FirstName = model.FirstName,
                 SecondName = model.SecondName,
@@ -94,9 +97,10 @@ namespace MarketPlace.Controllers
                 },
             };
 
-                // Try to create the user with the specified password
-                var result  = await _repositoryWrapper._Users.CreateUserAsync(user, model.Password);
+            // Try to create the user with the specified password
+            var result  = await _repositoryWrapper._Users.CreateUserAsync(user, model.Password);
 
+            if(!result.Success)
             if(!result.Success)
             {
                 // Provide feedback to the user
@@ -106,9 +110,14 @@ namespace MarketPlace.Controllers
                 }
             }
             // Attempt to sign the user in after successful registration
-            var signInResult = await _repositoryWrapper._Users.SignInAsync(model.Email, model.Password);
+            var signInResult = await _repositoryWrapper._Users.SignInAsync(model.Username, model.Password);
             if (!signInResult.Success)
             {
+                // Provide feedback to the user
+                foreach (var error in signInResult.message)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
                 // Provide feedback to the user
                 foreach (var error in signInResult.message)
                 {
@@ -126,11 +135,27 @@ namespace MarketPlace.Controllers
                 }
             }
         }
-
         [HttpGet]
-        public async Task<IActionResult> Profile(string username){
-            var user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            return View(user);
+        public async Task<IActionResult> CheckEmailExists(string email){
+            if(email.IsNullOrEmpty()){
+                return Json("Email is required");
+            }
+            var result =  await _repositoryWrapper._Users.GetByEmailAsync(email);
+            if(result != null){
+                return Json(true);
+            }
+            return Json(false);
+        }
+        [HttpGet]
+        public async Task<IActionResult> CheckUserNameExists(string username){
+            if(username.IsNullOrEmpty()){
+                return Json("username is required");
+            }
+            var result =  await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            if(result != null){
+                return Json(true);
+            }
+            return Json(false);
         }
 
         [HttpGet]
@@ -143,6 +168,7 @@ namespace MarketPlace.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string Email)
         {
+            if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
             if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
             {
                 var result =  await _repositoryWrapper._Users.SendResetTokenAsync(Email);
@@ -179,122 +205,188 @@ namespace MarketPlace.Controllers
         public IActionResult ChangePassword()
         {
             return View();
-        }      
-                // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        // [Authorize]
-        // public async Task<IActionResult> UpdatePersonalDetails(UpdatePersonalDetailsViewModel user)
-        // {
-        //     if (ModelState.IsValid)
-        //     {
-        //         var currentUser = await _userManager.GetUserAsync(User);
-        //         if (currentUser == null)
-        //         {
-        //             return RedirectToAction("Login", "Account");
-        //         }
+        }
+        public async Task<IActionResult> ChangePasswordConfirmed(ChangePasswordViewModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var result = await _repositoryWrapper._Users.ChangePasswordAsync(User.Identity.Name, model.OldPassword, model.NewPassword);
+                    if (result)
+                    {
+                        TempData["SuccessMessage"] = "Password changed successfully.";
+                        return RedirectToAction("Profile", new { username = User.Identity.Name });
+                    }
+                    return View(model);
+                }
+                else
+                {
+                    return View("ChangePassword");
+                }
+            }
+            catch
+            {
+                TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again.";
+                return View("ChangePassword");
+            }
+        }
+        
+        [HttpGet]
+        [Route("Account/Settings")]
+        public async Task<IActionResult> Settings(string username)
+        {
+            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
 
-        //         // Update Email
-        //         if (currentUser.Email != user.Email)
-        //         {
-        //             var emailResult = await _userManager.SetEmailAsync(currentUser, user.Email);
-        //             if (!emailResult.Succeeded)
-        //             {
-        //                 foreach (var error in emailResult.Errors)
-        //                 {
-        //                     ModelState.AddModelError(string.Empty, error.Description);
-        //                 }
-        //                 return View(user);
-        //             }
-        //         }
+            var model = new AccountSettingsViewModel
+            {
+                FirstName = user.FirstName,
+                SecondName = user.SecondName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                address = user.Address
+            };
+            return View(model);
+        }
 
-        //         // Update Phone Number
-        //         if (currentUser.PhoneNumber != user.PhoneNumber)
-        //         {
-        //             var phoneResult = await _userManager.SetPhoneNumberAsync(currentUser, user.PhoneNumber);
-        //             if (!phoneResult.Succeeded)
-        //             {
-        //                 foreach (var error in phoneResult.Errors)
-        //                 {
-        //                     ModelState.AddModelError(string.Empty, error.Description);
-        //                 }
-        //                 return View(user);
-        //             }
-        //         }
+        [HttpPost]
+        [Route("Account/Settings/PersonalInfo")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePersonalInfo(AccountSettingsViewModel model,string username)
+        {
 
-        //         // Update Address
-        //         if (currentUser.Address == null)
-        //         {
-        //             currentUser.Address = new Address();
-        //         }
-        //         currentUser.Address.AddressLine1 = user.AddressLine1;
-        //         currentUser.Address.AddressLine2 = user.AddressLine2;
-        //         currentUser.Address.City = user.City;
-        //         currentUser.Address.State = user.State;
-        //         currentUser.Address.PostalCode = user.PostalCode;
-        //         currentUser.Address.Country = user.Country;
+            if (model.FirstName.IsNullOrEmpty() || model.LastName.IsNullOrEmpty())
+            {
+                return View("Settings", model);
+            }
+            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
 
-        //         // Update user
-        //         var result = await _userManager.UpdateAsync(currentUser);
-        //         if (result.Succeeded)
-        //         {
-        //             return RedirectToAction("UpdatePersonalDetailsConfirmation");
-        //         }
-        //         foreach (var error in result.Errors)
-        //         {
-        //             ModelState.AddModelError(string.Empty, error.Description);
-        //         }
-        //     }
-        //     return View(user);
-        // }
+            if(user != null){
+                user.FirstName = model.FirstName;
+                user.SecondName = model.SecondName;
+                user.LastName = model.LastName;
+            }
+            else{
+                return RedirectToAction("Settings", new { username = new { username = user.UserName } });
+            }
+
+            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
+            if(result){
+                TempData["Result"] = "Update successful";
+                return RedirectToAction("Settings", new { username = user.UserName });
+            }
+            return RedirectToAction("Settings", new { username = user.UserName });
+
+        }
+        [Route("Account/Settings/Address")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateAddress(AccountSettingsViewModel model,string username)
+        {
+
+            if (model.address.AddressLine1.IsNullOrEmpty() || model.address.City.IsNullOrEmpty() ||
+            model.address.Country.IsNullOrEmpty() || model.address.PostalCode.IsNullOrEmpty())
+            {
+                return View("Settings", model);
+            }
+            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
+
+            if(user != null){
+                user.Address.AddressLine1 = model.address.AddressLine1;
+                user.Address.City = model.address.City;
+                user.Address.Country = model.address.Country;
+                user.Address.PostalCode = model.address.PostalCode;
+                
+
+            }
+            else{
+                return RedirectToAction("Settings", new { username = user.UserName });
+            }
+
+            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
+            if(result){
+                TempData["Result"] = "Update successful";
+                return RedirectToAction("Settings", new { username = user.UserName });
+            }
+            return RedirectToAction("Settings", new { username = user.UserName });
+
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Account/Settings/Contact")]
+        public async Task<IActionResult> UpdateContact(AccountSettingsViewModel model,string username)
+        {
+
+            if (model.Email.IsNullOrEmpty() || model.PhoneNumber.IsNullOrEmpty())
+            {
+                return View("Settings", model);
+            }
+            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
+            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
+
+            if(user != null){
+                user.Email = model.Email;
+                user.PhoneNumber = model.PhoneNumber;
+            }
+            else{
+                return RedirectToAction("Settings", new { username = user.UserName });
+            }
+
+            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
+            if(result){
+                TempData["Result"] = "Update successful";
+                return RedirectToAction("Settings", new { username = user.UserName });
+            }
+            return RedirectToAction("Settings", new { username = user.UserName });
+
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Account/Settings/Password")]
+        public async Task<IActionResult> UpdatePassword(AccountSettingsViewModel model)
+            {
+                try
+                {
+                    var result = await _repositoryWrapper._Users.ChangePasswordAsync(User.Identity.Name, model.CurrentPassword, model.NewPassword);
+                        if (result)
+                        {
+                            TempData["SuccessMessage"] = "Password changed successfully.";
+                            return RedirectToAction("Settings", new { username = User.Identity.Name });
+                        }
+                        return View(model);
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again.";
+                    return View("ChangePassword");
+                }
+            }
+
+
         [HttpGet]
         [Authorize]
         public IActionResult DeleteAccount()
         {
             return View();
-        }
+        }  
 
         [HttpGet]
         [Authorize]
-        [ValidateAntiForgeryToken]
-        // public async Task<IActionResult> DeleteAccountConfirmed()
-        // {
-        //     var user = await _userManager.GetUserAsync(User);
 
-        //     if (user == null)
-        //     {
-        //         // User not found; redirect to login page
-        //         return RedirectToAction("Login", "Account");
-        //     }
-        //     user.IsDeletionRequested = true;
-        //     user.DeletionRequestedAt = DateTime.Now;
-
-        //     var result = await _userManager.UpdateAsync(user);
-
-        //     if (result.Succeeded)
-        //     {
-        //         await _signInManager.SignOutAsync();
-        //         return RedirectToAction("DeleteAccountConfirmation");
-        //     }
-        //     foreach (var error in result.Errors)
-        //     {
-        //         ModelState.AddModelError(string.Empty, error.Description);
-        //     }
-
-        //     return View("DeleteAccount");
-        // }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await _repositoryWrapper._Users.SignOutAsync(User.Identity.Name);
-            return RedirectToAction("Index", "Home");
-        }
-
-
-        public IActionResult AccessDenied()
-        {
+        //Actions for Account settings
+        public IActionResult Settings(){
             return View();
         }
-    }
+        
+        [HttpPost]
+        [Authorize]
+            public async Task<IActionResult> Logout()
+            {
+                await _repositoryWrapper._Users.SignOutAsync(User.Identity.Name);
+                return RedirectToAction("Index", "Home");
+            }
+        }
 }

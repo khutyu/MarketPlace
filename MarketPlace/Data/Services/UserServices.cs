@@ -1,11 +1,9 @@
-﻿using System;
-using Azure.Core;
-using MarketPlace.Models;
+﻿using MarketPlace.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketPlace.Data.Services
 {
@@ -22,13 +20,14 @@ namespace MarketPlace.Data.Services
         IHttpContextAccessor httpContextAccessor, IUrlHelperFactory urlHelperFactory)
         {
             _userManager = userManager;
+
             _signInManager = signInManager;
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
 
             var actionContext = new ActionContext(
-        _httpContextAccessor.HttpContext,
-        _httpContextAccessor.HttpContext.GetRouteData(),
+            _httpContextAccessor.HttpContext,
+            _httpContextAccessor.HttpContext.GetRouteData(),
         new ActionDescriptor());
 
     _urlHelper = urlHelperFactory.GetUrlHelper(actionContext);
@@ -75,7 +74,7 @@ namespace MarketPlace.Data.Services
             var user = await _userManager.FindByNameAsync(Username);
             if(user == null)
             {
-                message.Add("No user found with the provided email address");
+                message.Add("No user found with the provided username");
                 return (false, message);
             }
             var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
@@ -86,14 +85,18 @@ namespace MarketPlace.Data.Services
             }
             else
             {
-                message.Add( "Incorrect email and password combination");
+                message.Add( "Incorrect username and password combination");
                 return (false,message);
             }
         }
 
-        public Task<User> GetUserWithAddressAsync(string userId)
+        public async Task<User> GetUserWithAddressAsync(string userId)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.Users
+                .Include(u => u.Address)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            return user;
         }
 
         public Task<bool> RequestAccountDeletionAsync(string userId)
@@ -103,21 +106,98 @@ namespace MarketPlace.Data.Services
 
         public async Task<(bool Success, IEnumerable<string> Errors)> UpdateProfilePictureAsync(string userId, IFormFile profilePicture)
         {
+            // Validate user existence.
             var user = await _userManager.FindByIdAsync(userId);
-            if(user == null)
+            if (user == null)
             {
-                return (false, new List<string> { "User Id cannot be null" });
-            }
-            using(var memoryStream = new MemoryStream())
-            {
-                await profilePicture.CopyToAsync(memoryStream);
-                user.ProfilePicture = memoryStream.ToArray();
+                return (false, new List<string> { "User not found." });
             }
 
-            var result = await _userManager.UpdateAsync(user);
-            if(result.Succeeded)
+            // Validate file size (5MB limit).
+            if (profilePicture.Length > 5 * 1024 * 1024)
             {
-                return (true, null);
+                return (false, new List<string> { "File size exceeds 5MB." });
+            }
+
+            // Validate file type.
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(profilePicture.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return (false, new List<string> { "Invalid file type." });
+            }
+
+            // Ensure upload directory exists.
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/uploads/profilePictures");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                var dir = Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Save the file.
+            var filePath = Path.Combine(uploadsFolder, $"{userId}{fileExtension}");
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await profilePicture.CopyToAsync(stream);
+            }
+
+            // Update user profile with file URL.
+            user.ProfilePictureUrl = $"/images/uploads/profilePictures/{userId}{fileExtension}";
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return (true, Enumerable.Empty<string>());
+            }
+            else
+            {
+                return (false, result.Errors.Select(e => e.Description));
+            }
+        }
+        public async Task<(bool Success, IEnumerable<string> Errors)> UploadProfileBanner(string userId, IFormFile profilebanner)
+        {
+            // Validate user existence.
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return (false, new List<string> { "User not found." });
+            }
+
+            // Validate file size (5MB limit).
+            if (profilebanner.Length > 5 * 1024 * 1024)
+            {
+                return (false, new List<string> { "File size exceeds 5MB." });
+            }
+
+            // Validate file type.
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(profilebanner.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return (false, new List<string> { "Invalid file type." });
+            }
+
+            // Ensure upload directory exists.
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/uploads/ProfileBanners");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                var dir = Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Save the file.
+            var filePath = Path.Combine(uploadsFolder, $"{userId}{fileExtension}");
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await profilebanner.CopyToAsync(stream);
+            }
+
+            // Update user profile with file URL.
+            user.ProfileBannerUrl = $"/images/uploads/ProfileBanners/{userId}{fileExtension}";
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return (true, Enumerable.Empty<string>());
             }
             else
             {
@@ -129,10 +209,33 @@ namespace MarketPlace.Data.Services
         {
             return await _userManager.FindByNameAsync(username);
         }
-
-        public Task<bool> UpdateUserDetailsAsync(User user)
+        public async Task<User> GetByEmailAsync(string email)
         {
-            throw new NotImplementedException();
+            var result =  await _userManager.FindByEmailAsync(email);
+
+            if(result != null){
+                return result;
+            }
+            else 
+                return null;
+        }
+
+        public  async Task<bool> UpdateUserDetailsAsync(User user)
+        {
+            if(user == null)
+            {
+                return false;
+            }
+            var result = await _userManager.UpdateAsync(user);
+
+            if(result.Succeeded)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<bool> SignOutAsync(string Username)
@@ -182,6 +285,28 @@ namespace MarketPlace.Data.Services
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
             return result.Succeeded;
         }
-
+        public async Task<bool> ChangePasswordAsync(string username, string oldPassword, string newPassword){
+            var user = await _userManager.FindByNameAsync(username);
+            if(user == null){
+                return false;
+            }
+            var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            return result.Succeeded;
+        }
+        public async Task<IEnumerable<User>> SearchUsersAsync(string username)
+        {
+            return await _userManager.Users
+                .Include(u => u.Products)
+                .Where(u => u.UserName.Contains(username))
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Notification>> GetUserwithNotificationsAsync(string username)
+        {
+            var user = await _userManager.Users
+                .Include(u => u.Notifications)
+                .FirstOrDefaultAsync(u => u.UserName == username);
+        
+            return user?.Notifications;
+        }
     }
 }

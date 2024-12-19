@@ -1,0 +1,18 @@
+@using Microsoft.IdentityModel.Tokens
+@model MarketPlace.Models.User
+
+@if(User.Identity.IsAuthenticated && !Model.ProfilePictureUrl.IsNullOrEmpty() )
+{
+    <img src="@Model.ProfilePictureUrl" 
+    alt="Profile Picture" 
+    class="rounded-circle" 
+    style="width: 50px; height: 50px; object-fit: cover;" />
+}
+else
+{
+    <img src="~/images/profile-default.webp" 
+    alt="Profile Picture" 
+    class="rounded-circle" 
+    style="width: 40px; height: 40px; object-fit: cover;" />   
+
+}

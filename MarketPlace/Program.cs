@@ -25,10 +25,10 @@ builder.Services.AddDbContext<AppIdentityDbContext>(options =>
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false; // Adjust as needed
+    options.Password.RequireNonAlphanumeric = false; 
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
-    options.Password.RequireDigit = true; // Require at least one digit
+    options.Password.RequireDigit = true;
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppIdentityDbContext>()
@@ -53,6 +53,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Seed roles and users
-SeedData.PopulateDatabase(app);
+//SeedData.PopulateDatabase(app);
 
 app.Run();

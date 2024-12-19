@@ -82,30 +82,15 @@ public class RepositoryWrapper : IRepositoryWrapper
         set { _chats = value; }
     }
 
-    public ICategoryRepository _Categories
+    public ICategoryRepository _Categories 
     {
-        get
-        {
-            if (_categories == null)
-            {
+        get{
+            if (_categories == null){
                 _categories = new CategoryRepository(_appDbContext);
             }
             return _categories;
         }
-        set { _categories = value; }
-    }
-
-    IAdminUserServices IRepositoryWrapper._adminServices
-    {
-        get
-        {
-            if (_adminServices == null)
-            {
-                _adminServices = new AdminUserServices(_userManager);
-            }
-            return _adminServices;
-        }
-
+        set{_categories = value;}
     }
 
     public void Save()

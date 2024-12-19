@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using MarketPlace.Models;
 using Microsoft.AspNetCore.Http;
 
 public class UserRegistrationViewModel
@@ -21,6 +23,7 @@ public class UserRegistrationViewModel
     [Compare("Password", ErrorMessage = "Passwords do not match.")]
     [DataType(DataType.Password)]
     public string ConfirmPassword { get; set; }
+    public string ConfirmEmail { get; set; }
 
     [Required(ErrorMessage = "First name is required.")]
     public string FirstName { get; set; }
@@ -34,7 +37,10 @@ public class UserRegistrationViewModel
     public string PhoneNumber { get; set; }
 
     [DataType(DataType.Date)]
-    public DateTime? DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
+    [Display(Name = "Gender" )]
+    [Required(ErrorMessage = "Gender is required.")]
+    public Gender gender{get;set;}
 
     [Display(Name = "Profile Picture")]
     public IFormFile ProfilePicture { get; set; }

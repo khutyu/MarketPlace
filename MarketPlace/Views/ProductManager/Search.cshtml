@@ -1,0 +1,290 @@
+@model SearchViewModel
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+@await Html.PartialAsync("_Alerts")
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,.1)!important;
+    }
+
+    .pill {
+        border-radius: 50px;
+    }
+
+    .page-link {
+        border-radius: 50%;
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-item.active .page-link {
+        background-color: #FFD814;
+        border-color: #FFD814;
+        color: #000;
+    }
+
+    .empty-state {
+        padding: 4rem 2rem;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+    }
+    .search-hero {
+        background: linear-gradient(rgba(0,61,50,0.05), rgba(0,61,50,0.1));
+    }
+
+    .form-control:focus {
+        border-color: #FFD814;
+        box-shadow: 0 0 0 0.25rem rgba(255,216,20,.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #FFD814;
+        border-color: #FFD814;
+    }
+
+    .pill {
+        border-radius: 50px;
+    }
+
+    .sticky-top {
+        z-index: 1020;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+</style>
+
+<!-- Hero Search Section -->
+<div class="search-hero mb-5 p-5 rounded-4 bg-light">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <h1 class="display-6 fw-bold mb-4">Find What You're Looking For</h1>
+            <form class="search-form">
+                <div class="input-group input-group-lg shadow-sm">
+                    <input type="text" name="q" class="form-control border-0" 
+                        placeholder="Search products..." value="@Model.Query">
+                    <button class="btn btn-warning px-4" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid px-4">
+    <div class="row g-4">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 2rem;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Filters</h5>
+                    <form id="filterForm">
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <label class="fw-medium mb-3">Categories</label>
+                            <div class="d-flex flex-column gap-2">
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                            name="categories" value="@category.CategoryId"
+                                            @(Model.SelectedCategories.Contains(category.CategoryId) ? "checked" : "")>
+                                        <label class="form-check-label">@category.CategoryName</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="fw-medium mb-3">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" 
+                                        name="minPrice" placeholder="Min" 
+                                        value="@Model.MinPrice">
+                                </div>
+                                <div class="col">
+                                    <input type="number" class="form-control" 
+                                        name="maxPrice" placeholder="Max" 
+                                        value="@Model.MaxPrice">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 pill">
+                            Apply Filters
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="col-lg-9">
+            <!-- User Search -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Search Users</h5>
+                        <form id="userSearchForm" class="d-flex gap-2" style="width: 300px;">
+                            <input type="text" name="username" id="userSearchInput" 
+                                class="form-control" placeholder="Search users...">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div id="userSearchResults" class="row g-3"></div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Products</h5>
+                        <div class="d-flex gap-2">
+                            <select class="form-select form-select-sm" style="width: 200px;">
+                                <option>Sort by</option>
+                                <option>Price: Low to High</option>
+                                <option>Price: High to Low</option>
+                                <option>Newest First</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Products Grid Here -->
+                    @if (!Model.Products.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-search fs-1 text-muted"></i>
+                            <h3 class="mt-3">No Results Found</h3>
+                            <p class="text-muted">Try adjusting your search or filters</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            @foreach (var product in Model.Products)
+                            {
+                                <div class="col">
+                                    <div class="card h-100 product-card">
+                                        <img src="@product.Images" class="card-img-top" 
+                                            style="height: 200px; object-fit: cover;" 
+                                            alt="@product.ProductName">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-truncate">@product.ProductName</h5>
+                                            <p class="card-text text-muted mb-2">@product.Description</p>
+                                            <p class="fw-bold text-success mb-0">@product.Price.ToString("C")</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent border-top-0">
+                                            <a href="/Products/Details/" 
+                                                class="btn btn-warning w-100 pill">View Details</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                <a class="page-link" href="?page=@i&q=@Model.Query">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<script>
+    function clearFilters() {
+        // Reset all form inputs
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+        document.querySelector('select[name="sort"]').value = 'relevance';
+        // Submit the form
+        document.getElementById('filterForm').submit();
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded',function(){
+        const userSearchForm = document.getElementById('userSearchForm');
+        const userSearchResults = document.getElementById('userSearchResults');
+        
+        userSearchForm.addEventListener('submit', async function(e){
+            e.preventDefault();
+            const username = document.getElementById('userSearchInput').value;
+            console.log(username);
+            fetch(`/Account/SearchUsers?username=${username}`,{
+                method : 'GET',
+                headers:{
+                    'Content-Type': 'application/json',
+                }
+            })
+
+            .then(response => response.json())
+            .then(data => {
+                userSearchResults.innerHTML = '';
+                if(data.length > 0){
+                    data.forEach(user => {
+                        console.log(user)
+                        const userCard = `
+                        <div class="col-md-4">
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-body text-center">
+                                        <img src="${user.profilePictureUrl}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                        <h5 class="card-title mb-1">${user.FirstName}</h5>
+                                        <p class="text-muted small mb-2">${user.listingCount} listings</p>
+                                        <a href="/Account/PublicProfile?username=${user.userName}" class="btn btn-warning btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        userSearchResults.insertAdjacentHTML("beforeend",userCard);
+                    });
+                }
+                else{
+                    userSearchResults.innerHTML = '<p class="text-muted">No users found.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                userSearchResults.innerHTML = '<p class="text-muted">An error occurred while searching for users.</p>';
+            });
+        });
+    })
+</script>
