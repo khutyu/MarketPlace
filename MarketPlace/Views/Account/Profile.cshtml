@@ -90,6 +90,60 @@
     .detail-group i {
         color: #003D32;
     }
+
+    .review-modal .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .review-modal .modal-header {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.5rem;
+    }
+
+    .review-modal .modal-body {
+        padding: 1.5rem;
+    }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        color: #ddd;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffc107;
+    }
+
+    .char-counter {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-align: right;
+        margin-top: 0.25rem;
+    }
+
+    .review-submit-btn {
+        transition: all 0.3s ease;
+    }
+
+    .review-submit-btn:hover {
+        transform: translateY(-1px);
+    }
 </style>
 
 @await Html.PartialAsync("_Alerts")
@@ -149,9 +203,10 @@
 
     <div class="p-4 border-bottom mb-3 ms-3" style="margin-top:5.5rem ;" data-button-container>
         <a class="btn btn-warning active pill" asp-action="Profile" asp-controller="Account" asp-route-username="@User.Identity.Name">Profile</a>
-        <a class="btn btn-warning me-2 pill" >Details</a>
-        <a class="btn btn-warning me-2 pill">Gallery</a>
-        <a class="btn btn-warning me-2 pill">Videos</a>
+        <a class="btn btn-warning me-2 pill" data-section="details">Details</a>
+        <a class="btn btn-warning me-2 pill" data-section="gallery">Gallery</a>
+        <a class="btn btn-warning me-2 pill" data-section="videos">Videos</a>
+        <a class="btn btn-warning me-2 pill" data-section="reviews">Reviews</a>
     </div>
 </div>
 <!--Main content-->
@@ -162,130 +217,96 @@
             <section>
                 <h2 class="fs-5 fw-bold mb-3">Profile</h2>
                 <div class="d-flex flex-column gap-2" data-button-container>
-                    <a class="btn btn-warning w-100 pill active " data-section="reviews">Reviews</a>
+                    <a class="btn btn-warning w-100 pill active" data-section="reviews">Reviews</a>
                     <a class="btn btn-warning me-2 pill" data-section="details">Account Information</a>
-                    <a class="btn btn-warning w-100  pill"  asp-action="ManageListings" asp-controller="ProductManager">Manage Listings</a>
+                    <a class="btn btn-warning w-100 pill" asp-action="ManageListings" asp-controller="ProductManager">Manage Listings</a>
                     <a class="btn btn-warning w-100 pill">My Listings</a>
                 </div>
             </section>
         </div>
         
         <!-- Right Section -->
-<div class="col-md-7">
-    <!-- Reviews Section -->
-    <div id="reviewsSection" class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-            <h4 class="card-title mb-4">Reviews Summary</h4>
-            <div class="review-summary">
-                <!-- Overall Rating -->
-                <div class="d-flex align-items-center mb-4">
-                    <div class="me-4 text-center">
-                        <h2 class="display-6 fw-bold mb-0">4.5</h2>
-                        <div class="mb-2">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                if (i <= 4)
-                                {
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                }
-                                else if (i - 4.5 <= 0.5)
-                                {
-                                    <i class="bi bi-star-half text-warning"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-star text-warning"></i>
-                                }
-                            }
-                        </div>
-                        <p class="text-muted small mb-0">24 reviews</p>
-                    </div>
-
-                    <!-- Rating Breakdown -->
-                    <div class="flex-grow-1">
-                        @foreach (var rating in new[] { 5, 4, 3, 2, 1 })
-                        {
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-muted small me-2" style="width: 20px;">@rating</div>
-                                <i class="bi bi-star-fill text-warning me-2 small"></i>
-                                <div class="progress flex-grow-1" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: @(rating * 20)%"></div>
-                                </div>
-                                <span class="text-muted small ms-2">@(rating * 4)</span>
+        <div class="col-md-7">
+            <!-- Reviews Section -->
+            <div id="reviewsSection" class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Reviews Summary</h4>
+                    <div class="review-summary">
+                        <!-- Overall Rating -->
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="me-4 text-center">
+                                <h2 class="display-6 fw-bold mb-0">4.5</h2>
+                                <p class="text-muted mb-0">24 reviews</p>
                             </div>
-                        }
+                            <div class="flex-grow-1">
+                                @foreach (var rating in new[] { 5, 4, 3, 2, 1 })
+                                {
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="text-muted small me-2" style="width: 20px;">@rating</div>
+                                        <i class="bi bi-star-fill text-warning me-2 small"></i>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: @(rating * 20)%"></div>
+                                        </div>
+                                        <span class="text-muted small ms-2">@(rating * 4)</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <button class="btn btn-warning pill" data-bs-toggle="modal" data-bs-target="#writeReviewModal">Write a Review</button>
+                        <a class="btn btn-outline-primary pill" asp-action="AllReviews" asp-controller="Account">See All Reviews</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Account Details Section -->
-    <div id="detailsSection" class="card border-0 shadow-sm d-none">
-        <div class="card border-0 shadow-sm p-4">
-    <div class="row g-4">
-        <!-- Personal Information -->
-        <div class="col-md-6">
-            <div class="detail-group">
-                <label class="form-label text-muted small">
-                    <i class="bi bi-person me-2"></i>First Name
-                </label>
-                <p class="mb-0 fw-medium">@Model.user.FirstName</p>
+<!-- Write Review Modal -->
+<div class="modal fade review-modal" data-bs-backdrop="static" id="writeReviewModal" tabindex="-1" aria-labelledby="writeReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="writeReviewModalLabel">Write a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="detail-group">
-                <label class="form-label text-muted small">
-                    <i class="bi bi-person me-2"></i>Last Name
-                </label>
-                <p class="mb-0 fw-medium">@Model.user.LastName</p>
-            </div>
-        </div>
-
-        <!-- Contact Information -->
-        <div class="col-md-6">
-            <div class="detail-group">
-                <label class="form-label text-muted small">
-                    <i class="bi bi-envelope me-2"></i>Email
-                </label>
-                <p class="mb-0 fw-medium">@Model.user.Email</p>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class    ="detail-group">
-                <label class="form-label text-muted small">
-                    <i class="bi bi-telephone me-2"></i>Phone Number
-                </label>
-                <p class="mb-0 fw-medium">@Model.user.PhoneNumber</p>
-            </div>
-        </div>
-
-        <!-- Full Address -->
-        <div class="col-12">
-            <div class="detail-group">
-                <label class="form-label text-muted small">
-                    <i class="bi bi-geo-alt me-2"></i>Address
-                </label>
-                <div class="address-details">
-                    <p class="mb-1 fw-medium">@Model.user.Address.AddressLine1</p>
-                    @if (!string.IsNullOrEmpty(Model.user.Address.AddressLine2))
-                    {
-                        <p class="mb-1 fw-medium">@Model.user.Address.AddressLine2</p>
-                    }
-                    <p class="mb-0 fw-medium">
-                        @Model.user.Address.City, @Model.user.Address.State @Model.user.Address.PostalCode
-                    </p>
-                    <p class="mb-0 fw-medium">@Model.user.Address.Country</p>
-                </div>
+            <div class="modal-body">
+                <form asp-action="SubmitReview" asp-controller="Account" method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-medium mb-3">Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" id="star5" name="Rating" value="5"/>
+                            <label for="star5" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star4" name="Rating" value="4"/>
+                            <label for="star4" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star3" name="Rating" value="3"/>
+                            <label for="star3" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star2" name="Rating" value="2"/>
+                            <label for="star2" class="bi bi-star-fill"></label>
+                            <input type="radio" id="star1" name="Rating" value="1"/>
+                            <label for="star1" class="bi bi-star-fill"></label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="reviewText" class="form-label fw-medium">Your Review</label>
+                        <textarea class="form-control" id="reviewText" name="ReviewText" 
+                                rows="4" maxlength="500" 
+                                placeholder="Share your experience..."
+                                style="resize: none;"></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500 characters
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 review-submit-btn py-2">
+                        Submit Review
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-</div>
-</div>
-</div>
 
-</div>
 <!-- Recent Listings Section -->
 <div class="shadow rounded border-0 me-4 mt-3" >
     <div class="row d-flex align-items-start">

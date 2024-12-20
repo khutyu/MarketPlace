@@ -4,5 +4,8 @@ namespace MarketPlace.Models
         public User user {get;set;}
         public IFormFile ProfilePicture{get;set;}
         public IFormFile ProfileBanner{get;set;}
+        public string ReviewComment {get;set;}
+        public int ReviewRating {get;set;}
+
     }
 }

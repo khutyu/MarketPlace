@@ -9,6 +9,7 @@ namespace MarketPlace.Data
         ICommentRepository _Comments { get; }
         IUserServices _Users { get; }
         ICategoryRepository _Categories { get; }
+        IReviewRepository _Reviews { get; }
         void Save();
     }
 }

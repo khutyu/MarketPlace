@@ -1,13 +1,12 @@
-﻿using MarketPlace.Data.Services;
-using MarketPlace.Data;
+﻿using MarketPlace.Data;
 using MarketPlace.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Routing;
+using MarketPlace.Data.Services;
 
 public class RepositoryWrapper : IRepositoryWrapper
 {
     private readonly AppDbContext _appDbContext;
-    private readonly AppIdentityDbContext _appIdentityDbContext;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly IEmailService _emailService;
@@ -20,10 +19,10 @@ public class RepositoryWrapper : IRepositoryWrapper
     private IChatRepository _chats;
     private ICategoryRepository _categories;
     private IAdminUserServices _adminServices;
+    private IReviewRepository _reviewRepository;
 
     public RepositoryWrapper(
         AppDbContext appDbContext,
-        AppIdentityDbContext appIdentityDbContext,
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         IEmailService emailService,
@@ -31,7 +30,6 @@ public class RepositoryWrapper : IRepositoryWrapper
         IUrlHelperFactory urlHelperFactory)
     {
         _appDbContext = appDbContext;
-        _appIdentityDbContext = appIdentityDbContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _emailService = emailService;
@@ -93,6 +91,18 @@ public class RepositoryWrapper : IRepositoryWrapper
         set{_categories = value;}
     }
 
+    public IReviewRepository _Reviews
+    {
+        get
+        {
+            if(_reviewRepository == null)
+            {
+                _reviewRepository = new ReviewRepository(_appDbContext);
+            }
+            return _reviewRepository;
+        }
+        set {_reviewRepository = value; }
+    }
     public void Save()
     {
         _appDbContext.SaveChanges();
