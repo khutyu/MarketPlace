@@ -21,7 +21,7 @@ namespace MarketPlace.Controllers
         private readonly SignInManager<User> _signInManager;
 
         public AccountController(IRepositoryWrapper repositoryWrapper, UserManager<User> userManager,
-        SignInManager<User> signInManager, UserManager<User> _userManager)
+        SignInManager<User> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
