@@ -108,7 +108,7 @@
                                                     
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <label asp-for="SecondName" class="form-label">First Name</label>
+                                                    <label asp-for="SecondName" class="form-label">Second Name</label>
                                                     <input asp-for="SecondName" class="form-control" 
                                                         value="@Model.SecondName"/>
                                                     <span asp-validation-for="@Model.SecondName"></span>
@@ -150,6 +150,11 @@
                                                         value="@Model.address.AddressLine1"/>
                                                 </div>
                                                 <div class="col-md-6">
+                                                    <label class="form-label">Country</label>
+                                                    <input asp-for="@Model.address.Country" class="form-control"
+                                                           value="@Model.address.Country" />
+                                                </div>
+                                                <div class="col-md-6">
                                                     <label class="form-label">City</label>
                                                     <input asp-for="@Model.address.City" class="form-control" 
                                                         value="@Model.address.City"/>
@@ -187,7 +192,7 @@
                                 </div>
                                 <div class="collapse" id="contactInfo">
                                     <div class="p-3 border-top">
-                                        <form asp-action="UpdateContact"  asp-controller="Account" asp-route-username="@User.Identity.Name" method="post">
+                                        <form asp-action="UpdateContact"  asp-controller="Account" method="post">
                                             <div class="row g-3">
                                                 <div class="col-md-6">
                                                     <label class="form-label">Email</label>

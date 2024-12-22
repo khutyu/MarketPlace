@@ -20,6 +20,8 @@ public class RepositoryWrapper : IRepositoryWrapper
     private ICategoryRepository _categories;
     private IAdminUserServices _adminServices;
     private IReviewRepository _reviewRepository;
+    private IUserRepository _user;
+    private IAddressRepository _address;
 
     public RepositoryWrapper(
         AppDbContext appDbContext,
@@ -36,10 +38,22 @@ public class RepositoryWrapper : IRepositoryWrapper
         _httpContextAccessor = httpContextAccessor;
         _urlHelperFactory = urlHelperFactory;
 
-        _Users = new UserServices(_userManager, _signInManager, _emailService, _httpContextAccessor, _urlHelperFactory);
+        _UserServices = new UserServices(_userManager, _signInManager, _emailService, _httpContextAccessor, _urlHelperFactory);
     }
 
-    public IUserServices _Users { get; }
+    public IUserServices _UserServices { get; }
+    public IUserRepository _Users
+    {
+        get
+        {
+            if (_user == null)
+            {
+                _user = new UserRepository(_appDbContext);
+            }
+            return _user;
+        }
+        set { _user = value; }
+    }
 
     public ICommentRepository _Comments
     {
@@ -103,6 +117,20 @@ public class RepositoryWrapper : IRepositoryWrapper
         }
         set {_reviewRepository = value; }
     }
+
+    public IAddressRepository _Addresses
+    {
+        get
+        {
+            if (_address == null)
+            {
+                _address = new AddressRepository(_appDbContext);
+            }
+            return _address;
+        }
+        set { _address = value; }
+    }
+
     public void Save()
     {
         _appDbContext.SaveChanges();

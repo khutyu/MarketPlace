@@ -9,17 +9,23 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Security.Claims;
 using System.Web;
 
 namespace MarketPlace.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IRepositoryWrapper _repositoryWrapper;
+        private readonly IRepositoryWrapper _repo;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AccountController(IRepositoryWrapper repositoryWrapper)
+        public AccountController(IRepositoryWrapper repositoryWrapper, UserManager<User> userManager,
+        SignInManager<User> signInManager, UserManager<User> _userManager)
         {
-            _repositoryWrapper = repositoryWrapper;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _repo = repositoryWrapper;
         }
 
         [HttpGet]
@@ -37,21 +43,17 @@ namespace MarketPlace.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _repositoryWrapper._Users.SignInAsync(loginModel.Username, loginModel.Password);
-                if (result.Success)
+                var result = await _signInManager.PasswordSignInAsync(loginModel.Username,
+                                                            loginModel.Password,
+                                                            loginModel.RememberMe,
+                                                            false);
+                if (result.Succeeded)
                 {
-                    if (!string.IsNullOrEmpty(loginModel.ReturnUrl) && Url.IsLocalUrl(loginModel.ReturnUrl))
-                    {
-                        return Redirect(loginModel.ReturnUrl);
-                    }
-                    return RedirectToAction("Index", "Home");
+                    return Redirect(loginModel?.ReturnUrl ?? "/Home/Index");
                 }
-                else{
-                    foreach (var error in result.message)
-                    {
-                        ModelState.TryAddModelError(string.Empty, error);
-                    }
-                    return View(loginModel);
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 }
             }
             return View(loginModel);
@@ -102,61 +104,57 @@ namespace MarketPlace.Controllers
             };
 
             // Try to create the user with the specified password
-            var result  = await _repositoryWrapper._Users.CreateUserAsync(user, model.Password);
-
-            if(!result.Success)
-            if(!result.Success)
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (result.Succeeded)
             {
-                // Provide feedback to the user
-                foreach (var error in result.message)
+                foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error);
-                }
-            }
-            // Attempt to sign the user in after successful registration
-            var signInResult = await _repositoryWrapper._Users.SignInAsync(model.Username, model.Password);
-            if (!signInResult.Success)
-            {
-                // Provide feedback to the user
-                foreach (var error in signInResult.message)
-                {
-                    ModelState.AddModelError(string.Empty, error);
-                }
-                // Provide feedback to the user
-                foreach (var error in signInResult.message)
-                {
-                    ModelState.AddModelError(string.Empty, error);
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
                 return View(model);
-                
             }
-            else{
-                if(!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl)){
-                    return Redirect(model.ReturnUrl);
-                }
+            // Attempt to sign the user in after successful registration
+            var signInResult = await _repo._UserServices.SignInAsync(model.Username, model.Password);
+            if (!signInResult.Success)
+            {
+                foreach (var error in result.Errors)
                 {
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
+                TempData["ErrorMessage"] = "An Error Occured while signing you in";
+                return View("LogIn");
+            }
+            else
+            {
+                return Redirect(model.ReturnUrl ?? "/Home/Index");
             }
         }
         [HttpGet]
-        public async Task<IActionResult> CheckEmailExists(string email){
-            if(email.IsNullOrEmpty()){
+        [Authorize]
+        public async Task<IActionResult> CheckEmailExists(string email)
+        {
+            if (email.IsNullOrEmpty())
+            {
                 return Json("Email is required");
             }
-            var result =  await _repositoryWrapper._Users.GetByEmailAsync(email);
-            if(result != null){
+            var result = await _userManager.FindByEmailAsync(email);
+            if (result != null)
+            {
                 return Json(true);
             }
             return Json(false);
         }
         [HttpGet]
-        public async Task<IActionResult> CheckUserNameExists(string username){
-            if(username.IsNullOrEmpty()){
+        [Authorize]
+        public async Task<IActionResult> CheckUserNameExists(string username)
+        {
+            if (username.IsNullOrEmpty())
+            {
                 return Json("username is required");
             }
-            var result =  await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            if(result != null){
+            var result = await _userManager.FindByNameAsync(username);
+            if (result != null)
+            {
                 return Json(true);
             }
             return Json(false);
@@ -173,11 +171,11 @@ namespace MarketPlace.Controllers
         public async Task<IActionResult> ResetPassword(string Email)
         {
             if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
-            if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
             {
-                var result =  await _repositoryWrapper._Users.SendResetTokenAsync(Email);
+                var result = await _repo._UserServices.SendResetTokenAsync(Email);
 
-                if(result.Success){
+                if (result.Success)
+                {
                     TempData["SuccessMessage"] = "An email has been sent to your address with instructions to reset your password.";
                     return RedirectToAction("LogIn");
                 }
@@ -188,60 +186,13 @@ namespace MarketPlace.Controllers
             }
             return View();
         }
-        
-        public async Task<IActionResult> ResetPasswordComfirmed(ResetPasswordViewModel model)
-        {
-            if(!ModelState.IsValid){
-                return View(model);
-            }
-            else if (!string.IsNullOrEmpty(model.Token) && !string.IsNullOrEmpty(model.Password)){
-                var result = await _repositoryWrapper._Users.ResetPasswordAsync(model.Email,model.Token, model.Password);
-                if(result){
-                    TempData["SuccessMessage"] = "Your password has been reset.";
-                    return RedirectToAction("LogIn");
-                }
-            }
-            return View("LogIn");
-        }
 
         [HttpGet]
         [Authorize]
-        public IActionResult ChangePassword()
+        public async Task<IActionResult> Settings()
         {
-            return View();
-        }
-        public async Task<IActionResult> ChangePasswordConfirmed(ChangePasswordViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    var result = await _repositoryWrapper._Users.ChangePasswordAsync(User.Identity.Name, model.OldPassword, model.NewPassword);
-                    if (result)
-                    {
-                        TempData["SuccessMessage"] = "Password changed successfully.";
-                        return RedirectToAction("Profile", new { username = User.Identity.Name });
-                    }
-                    return View(model);
-                }
-                else
-                {
-                    return View("ChangePassword");
-                }
-            }
-            catch
-            {
-                TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again.";
-                return View("ChangePassword");
-            }
-        }
-        
-        [HttpGet]
-        [Route("Account/Settings")]
-        public async Task<IActionResult> Settings(string username)
-        {
-            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = _repo._Users.GetWithAddress(userId);
 
             var model = new AccountSettingsViewModel
             {
@@ -256,141 +207,148 @@ namespace MarketPlace.Controllers
         }
 
         [HttpPost]
-        [Route("Account/Settings/PersonalInfo")]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdatePersonalInfo(AccountSettingsViewModel model,string username)
+        public async Task<IActionResult> UpdatePersonalInfo(AccountSettingsViewModel model)
         {
-
-            if (model.FirstName.IsNullOrEmpty() || model.LastName.IsNullOrEmpty())
+            try
             {
-                return View("Settings", model);
-            }
-            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if(user != null){
-                user.FirstName = model.FirstName;
-                user.SecondName = model.SecondName;
-                user.LastName = model.LastName;
-            }
-            else{
-                return RedirectToAction("Settings", new { username = new { username = user.UserName } });
-            }
 
-            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
-            if(result){
-                TempData["Result"] = "Update successful";
-                return RedirectToAction("Settings", new { username = user.UserName });
+                if (model.FirstName.IsNullOrEmpty() || model.LastName.IsNullOrEmpty())
+                {
+                    return View("Settings", model);
+                }
+
+                var user = _repo._Users.GetById(userId);
+
+                if (user != null)
+                {
+                    user.FirstName = model.FirstName;
+                    user.SecondName = model.SecondName;
+                    user.LastName = model.LastName;
+                }
+                else
+                {
+                    return RedirectToAction("Settings");
+                }
+
+                _repo._Users.Update(user);
+                _repo.Save();
+
+                TempData["SuccessMessage"] = "Update successful";
+                return RedirectToAction("Settings");
+
             }
-            return RedirectToAction("Settings", new { username = user.UserName });
+            catch
+            {
+                TempData["ErrroMessage"] = "An Error Occured while updating you details";
+                return RedirectToAction("Settings");
+            }
 
         }
-        [Route("Account/Settings/Address")]
+
         [HttpPost]
-        public async Task<IActionResult> UpdateAddress(AccountSettingsViewModel model,string username)
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateAddress(AccountSettingsViewModel model, string username)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (model.address.AddressLine1.IsNullOrEmpty() || model.address.City.IsNullOrEmpty() ||
             model.address.Country.IsNullOrEmpty() || model.address.PostalCode.IsNullOrEmpty())
             {
+                TempData["ErrorMessage"] = "Please ensure all required fields are filled out correctly.";
                 return View("Settings", model);
             }
-            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
+            var address = _repo._Addresses.FindByCondition(a => a.UserId == userId).FirstOrDefault();
 
-            if(user != null){
-                user.Address.AddressLine1 = model.address.AddressLine1;
-                user.Address.City = model.address.City;
-                user.Address.Country = model.address.Country;
-                user.Address.PostalCode = model.address.PostalCode;
-                
-
+            if (address != null)
+            {
+                address.AddressLine1 = model.address.AddressLine1;
+                address.City = model.address.City;
+                address.Country = model.address.Country;
+                address.PostalCode = model.address.PostalCode;
+                address.State = model.address.State;
             }
-            else{
-                return RedirectToAction("Settings", new { username = user.UserName });
+            else
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating your address. Please try again.";
+                return RedirectToAction("Settings");
             }
 
-            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
-            if(result){
-                TempData["Result"] = "Update successful";
-                return RedirectToAction("Settings", new { username = user.UserName });
-            }
-            return RedirectToAction("Settings", new { username = user.UserName });
-
+            _repo._Addresses.Update(address);
+            _repo.Save();
+            TempData["SuccessMessage"] = "Address updated successfully.";
+            return RedirectToAction("Settings");
         }
+
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        [Route("Account/Settings/Contact")]
-        public async Task<IActionResult> UpdateContact(AccountSettingsViewModel model,string username)
+        public IActionResult UpdateContact(AccountSettingsViewModel model, string username)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (model.Email.IsNullOrEmpty() || model.PhoneNumber.IsNullOrEmpty())
             {
+                TempData["ErrorMessage"] = "Please ensure all required fields are filled out correctly.";
                 return View("Settings", model);
             }
-            var User = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-            var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(User.Id);
 
-            if(user != null){
+            var user = _repo._Users.GetById(userId);
+
+            if (user != null)
+            {
                 user.Email = model.Email;
                 user.PhoneNumber = model.PhoneNumber;
             }
-            else{
-                return RedirectToAction("Settings", new { username = user.UserName });
+            else
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating your contact details. Please try again.";
+                return RedirectToAction("Settings");
             }
 
-            var result = await _repositoryWrapper._Users.UpdateUserDetailsAsync(user);
-            if(result){
-                TempData["Result"] = "Update successful";
-                return RedirectToAction("Settings", new { username = user.UserName });
-            }
-            return RedirectToAction("Settings", new { username = user.UserName });
+            _repo._Users.Update(user);
+            _repo.Save();
+            TempData["SuccessMessage"] = "Contact details updated successfully.";
+            return RedirectToAction("Settings");
 
         }
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        [Route("Account/Settings/Password")]
         public async Task<IActionResult> UpdatePassword(AccountSettingsViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (model.CurrentPassword.IsNullOrEmpty() || model.NewPassword.IsNullOrEmpty() || model.ConfirmPassword.IsNullOrEmpty())
             {
-                try
-                {
-                    var result = await _repositoryWrapper._Users.ChangePasswordAsync(User.Identity.Name, model.CurrentPassword, model.NewPassword);
-                        if (result)
-                        {
-                            TempData["SuccessMessage"] = "Password changed successfully.";
-                            return RedirectToAction("Settings", new { username = User.Identity.Name });
-                        }
-                        return View(model);
-                }
-                catch
-                {
-                    TempData["ErrorMessage"] = "An error occurred while changing your password. Please try again.";
-                    return View("ChangePassword");
-                }
+                TempData["ErrorMessage"] = "Please ensure all required fields are filled out correctly.";
+                return View("Settings", model);
+            }
+            var user = _repo._Users.GetById(userId);
+            var result = _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (result.IsCompletedSuccessfully)
+            {
+                TempData["SuccessMessage"] = "Password changed successfully.";
+                return RedirectToAction("Settings");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "An error occurred while updating your password. Please try again.";
+                return RedirectToAction("Settings");
             }
 
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult DeleteAccount()
-        {
-            return View();
-        }  
-
-        [HttpGet]
-        [Authorize]
-
-        //Actions for Account settings
-        public IActionResult Settings(){
-            return View();
         }
-        
+
         [HttpPost]
         [Authorize]
-            public async Task<IActionResult> Logout()
-            {
-                await _repositoryWrapper._Users.SignOutAsync(User.Identity.Name);
-                return RedirectToAction("Index", "Home");
-            }
+        public async Task<IActionResult> Logout()
+        {
+             await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
+    }
 }

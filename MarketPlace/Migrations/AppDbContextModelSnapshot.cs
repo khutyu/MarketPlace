@@ -520,13 +520,11 @@ namespace MarketPlace.Migrations
 
             modelBuilder.Entity("MarketPlace.Models.Address", b =>
                 {
-                    b.HasOne("MarketPlace.Models.User", "User")
+                    b.HasOne("MarketPlace.Models.User", null)
                         .WithOne("Address")
                         .HasForeignKey("MarketPlace.Models.Address", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>

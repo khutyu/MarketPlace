@@ -1,89 +1,107 @@
 using MarketPlace.Data;
 using MarketPlace.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Security.Claims;
 
-public class AccountController : Controller
+public class UserController : Controller
 {
-    private readonly IRepositoryWrapper _repositoryWrapper;
-    private readonly IWebHostEnvironment _environment;
+    private readonly IRepositoryWrapper _repo;
 
-    public AccountController(IRepositoryWrapper repositoryWrapper)
+    public UserController(IRepositoryWrapper repositoryWrapper)
     {
-        _repositoryWrapper = repositoryWrapper;
+        _repo = repositoryWrapper;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Profile(string username)
+    [Authorize]
+    public IActionResult Profile()
     {
-        var _user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-        var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(_user.Id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user =  _repo._Users.GetWithAddressAndReviews(userId);
         var model = new ProfileViewModel
         {
             user = user
         };
-        return View(model);
+        return View("/Views/Account/Profile.cshtml",model);
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> PublicProfile(string username)
     {
-        var _user = await _repositoryWrapper._Users.GetByUsernameAsync(username);
-        var user = await _repositoryWrapper._Users.GetUserWithAddressAsync(_user.Id);
+        var user = _repo._Users.GetByNameWithAddressReview(username);
         var model = new ProfileViewModel
         {
             user = user
         };
-        return View(model);
+        return View("/Views/Account/PublicProfile.cshtml",model);
     }
 
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> UploadProfilePicture(ProfileViewModel model)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var file = model.ProfilePicture;
         if (file == null || file.Length == 0)
         {
             TempData["ErrorMessage"] = "No file was selected, please try again";
             return RedirectToAction("Profile");
         }
-        else
+
+        var user = _repo._Users.GetById(userId);
+        if (user == null)
         {
-            try
-            {
-                var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
-                var result = await _repositoryWrapper._Users.UpdateProfilePictureAsync(user.Id, file);
-
-                if (result.Success)
-                {
-                    TempData["SuccessMessage"] = "Profile picture updated successfully.";
-                    return RedirectToAction("profile", new { username = User.Identity.Name });
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "An Error Occurred while updating your profile picture";
-                    return RedirectToAction("profile", new { username = User.Identity.Name });
-                }
-
-            }
-            catch
-            {
-                TempData["ErrorMessage"] = "An unexpected error occurred. Please try again.";
-                return RedirectToAction("profile", new { username = User.Identity.Name });
-            }
+            TempData["ErrorMessage"] = "An error occurred while updating your profile picture.";
+            return RedirectToAction("Profile");
         }
+
+        // Validate file type.
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLower();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            return View();
+        }
+
+        // Ensure upload directory exists.
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/uploads/ProfilePictures");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            var dir = Directory.CreateDirectory(uploadsFolder);
+        }
+
+        // Save the file.
+        var filePath = Path.Combine(uploadsFolder, $"{userId}{fileExtension}");
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        // Update user profile with file URL.
+        user.ProfilePictureUrl = $"/images/uploads/ProfilePictures/{userId}{fileExtension}";
+        _repo._Users.Update(user);
+        _repo.Save();
+        TempData["SuccessMessage"] = "Profile picture updated successfully.";
+        return RedirectToAction("profile", new { username = User.Identity.Name });
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> SearchUsers(string username)
     {
-        var users = await _repositoryWrapper._Users.SearchUsersAsync(username);
+        var users = _repo._Users.FindByCondition(u => u.UserName == username);
         var result = users.Select(user => new
         {
+            user.FirstName,
+            user.LastName,
             user.UserName,
             user.Email,
             ProfilePictureUrl = user.ProfilePictureUrl ?? "/images/default-avatar.jpg",
-            ListingCount = user.Products.Count(),
+            ListingCount = user.Products?.Count(),
         });
 
         return Json(result);
@@ -93,7 +111,10 @@ public class AccountController : Controller
     [Authorize]
     public async Task<IActionResult> UploadProfileBanner(ProfileViewModel model)
     {
-        if (model.ProfileBanner == null || model.ProfileBanner.Length == 0)
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var file = model.ProfileBanner;
+
+        if (file == null || file.Length == 0)
         {
             TempData["ErrorMessage"] = "No file was selected, please try again.";
             return RedirectToAction("Profile", new { username = User.Identity.Name });
@@ -101,25 +122,38 @@ public class AccountController : Controller
 
         try
         {
-            var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
-            if (user == null)
+            var user =  _repo._Users.GetById(userId);
+
+            // Validate file type.
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            if (!allowedExtensions.Contains(fileExtension))
             {
-                TempData["ErrorMessage"] = "An error occurred while updating your profile banner.";
-                return RedirectToAction("Profile", new { username = User.Identity.Name });
+                TempData["ErrorMessage"] = "Invalid filetype";
             }
 
-            var result = await _repositoryWrapper._Users.UploadProfileBanner(user.Id, model.ProfileBanner);
+            // Ensure upload directory exists.
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/uploads/ProfileBanners");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                var dir = Directory.CreateDirectory(uploadsFolder);
+            }
 
-            if (result.Success)
+            // Save the file.
+            var filePath = Path.Combine(uploadsFolder, $"{userId}{fileExtension}");
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                TempData["SuccessMessage"] = "Profile banner updated successfully.";
-                return RedirectToAction("Profile", new { username = User.Identity.Name });
+                await file.CopyToAsync(stream);
             }
-            else
-            {
-                TempData["ErrorMessage"] = string.Join(", ", result.Errors ?? new[] { "An error occurred while updating your profile banner." });
-                return RedirectToAction("Profile", new { username = User.Identity.Name });
-            }
+
+            // Update user profile with file URL.
+            user.ProfileBannerUrl = $"/images/uploads/ProfileBanners/{userId}{fileExtension}";
+            _repo._Users.Update(user);
+            _repo.Save();
+
+            TempData["SuccessMessage"] = "Profile banner updated successfully.";
+            return RedirectToAction("Profile", new { username = User.Identity.Name });
+
         }
         catch
         {
@@ -129,7 +163,7 @@ public class AccountController : Controller
     }
     public async Task<IActionResult> GetNotifications()
     {
-        var userNotification = await _repositoryWrapper._Users.GetUserwithNotificationsAsync(User.Identity.Name);
+        var userNotification = await _repo._UserServices.GetUserwithNotificationsAsync(User.Identity.Name);
         if (userNotification != null)
         {
             TempData["ErrorMessage"] = "An error Occurred while fetching your notifications";
@@ -148,27 +182,28 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public async Task< IActionResult> GetReviews(string username)
+    [Authorize]
+    public async Task< IActionResult> GetUserReviews(string username)
     {
         if (username == null)
         {
             return null;
         }
-        var user =  await _repositoryWrapper._Users.GetByUsernameAsync(username);
-        var reviews =  _repositoryWrapper._Reviews.FindByCondition(r => r.UserId == user.Id);
+        var user =  await _repo._UserServices.GetByUsernameAsync(username);
+        var reviews =  _repo._Reviews.FindByCondition(r => r.UserId == user.Id);
 
-        return (IActionResult)reviews;
+        return Json(reviews);
     }
+
     [Authorize]
     [ValidateAntiForgeryToken]
     [HttpPost]
-    [Route("User/PostReview/{id}")]
     public async Task<IActionResult> PostReview(string id, ProfileViewModel model)
     {
-        var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         // Validate user and input data
-        if (user == null || string.IsNullOrEmpty(id))
+        if (id == null || string.IsNullOrEmpty(id))
         {
             TempData["ErrorMessage"] = "An error occurred while posting your review.";
             return RedirectToAction("PublicProfile", new { username = User.Identity.Name } ); 
@@ -179,15 +214,15 @@ public class AccountController : Controller
             var newReview = new Review
             {
                 UserId = id,
-                PosterId = user.Id,
+                PosterId = userId,
                 Rating = model.ReviewRating,
                 Comment = model.ReviewComment,
                 CreatedAt = DateTime.UtcNow
             };
 
             // Add the review to the database
-            _repositoryWrapper._Reviews.Create(newReview);
-            _repositoryWrapper.Save();
+            _repo._Reviews.Create(newReview);
+            _repo.Save();
 
             // Success message
             TempData["SuccessMessage"] = "Review posted successfully!";
@@ -198,30 +233,4 @@ public class AccountController : Controller
             return RedirectToAction("PublicProfile", new { username = User.Identity.Name } ); 
         }
     }
-
-
-    // [HttpGet]
-    // [Authorize]
-    // // public async Task<IActionResult> TestGetNotifications()
-    // {
-    //     // Simulate a user
-    //     var fakeUserNotifications = new User
-    //     {
-    //         Notifications = new List<Notification>
-    //         {
-    //             new Notification { Message = "Test Message 1", CreatedAt = DateTime.UtcNow, IsRead = false },
-    //             new Notification { Message = "Test Message 2", CreatedAt = DateTime.UtcNow, IsRead = true }
-    //         }
-    //     };
-
-    //     // Mock behavior directly for quick testing
-    //     var result = fakeUserNotifications.Notifications.Select(notification => new
-    //     {
-    //         notification.Message,
-    //         notification.CreatedAt,
-    //         notification.IsRead
-    //     });
-
-    //     return Json(new { success = true, notifications = result });
-    // }
 }

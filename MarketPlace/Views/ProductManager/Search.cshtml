@@ -249,7 +249,7 @@
             e.preventDefault();
             const username = document.getElementById('userSearchInput').value;
             console.log(username);
-            fetch(`/Account/SearchUsers?username=${username}`,{
+            fetch(`/User/SearchUsers?username=${username}`,{
                 method : 'GET',
                 headers:{
                     'Content-Type': 'application/json',
@@ -267,9 +267,9 @@
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-body text-center">
                                         <img src="${user.profilePictureUrl}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
-                                        <h5 class="card-title mb-1">${user.FirstName}</h5>
+                                        <h6 class="card-title mb-1">${user.firstName} ${user.lastName}</h6>
                                         <p class="text-muted small mb-2">${user.listingCount} listings</p>
-                                        <a href="/Account/PublicProfile?username=${user.userName}" class="btn btn-warning btn-sm">View Profile</a>
+                                        <a href="/User/PublicProfile?username=${user.userName}" class="btn btn-warning btn-sm">View Profile</a>
                                     </div>
                                 </div>
                             </div>
@@ -278,12 +278,12 @@
                     });
                 }
                 else{
-                    userSearchResults.innerHTML = '<p class="text-muted">No users found.</p>';
+                    userSearchResults.innerHTML = '<p class="text-muted">No Results.</p>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                userSearchResults.innerHTML = '<p class="text-muted">An error occurred while searching for users.</p>';
+                userSearchResults.innerHTML = '<p class="text-muted">An error occurred while searching for user.</p>';
             });
         });
     })

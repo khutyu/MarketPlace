@@ -20,5 +20,6 @@ namespace MarketPlace.Data.Services
         Task<bool> SignOutAsync(string Username);
         Task<IEnumerable<User>> SearchUsersAsync(string username);
         Task<IEnumerable<Notification>> GetUserwithNotificationsAsync(string username);
+        // Task<IEnumerable<T>> GetUserWithAddressAndReviewsAsync(string username);
     }
 }

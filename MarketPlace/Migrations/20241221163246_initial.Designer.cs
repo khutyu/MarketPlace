@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketPlace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241220132114_Initial")]
-    partial class Initial
+    [Migration("20241221163246_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -523,13 +523,11 @@ namespace MarketPlace.Migrations
 
             modelBuilder.Entity("MarketPlace.Models.Address", b =>
                 {
-                    b.HasOne("MarketPlace.Models.User", "User")
+                    b.HasOne("MarketPlace.Models.User", null)
                         .WithOne("Address")
                         .HasForeignKey("MarketPlace.Models.Address", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MarketPlace.Models.Chat", b =>

@@ -6,62 +6,6 @@
 }
 
 <style>
-    .profile-picture-container {
-        position: relative;
-        cursor: pointer;
-    }
-
-    .profile-picture-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .profile-picture-container:hover .profile-picture-overlay {
-        opacity: 1;
-    }
-
-    .camera-icon {
-        color: white;
-        font-size: 2rem;
-    }
-
-    .banner-container {
-        position: relative;
-        cursor: pointer;
-    }
-
-    .banner-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .banner-container:hover .banner-overlay {
-        opacity: 1;
-    }
-
-    .banner-camera-icon {
-        color: white;
-        font-size: 3rem;
-    }
-
     .fw-medium {
         font-weight: 500;
     }
@@ -90,7 +34,6 @@
     .detail-group i {
         color: #003D32;
     }
-
     .review-modal .modal-content {
         border-radius: 15px;
         border: none;
@@ -156,9 +99,6 @@
                 alt="Profile Banner" 
                 class="w-100 rounded"
                 style="height: 300px; object-fit: cover;">
-            <div class="banner-overlay rounded">
-                <i class="bi bi-camera-fill banner-camera-icon"></i>
-            </div>
         </div>
     </div>
     
@@ -169,9 +109,6 @@
                 alt="Profile picture" 
                 class="rounded"
                 style="width: 7rem; height: 7rem; object-fit: cover;">
-            <div class="profile-picture-overlay rounded">
-                <i class="bi bi-camera-fill camera-icon"></i>
-            </div>
         </div>
         <div class="ms-3">
             <h1 class="fs-4 fw-bold mb-0">@Model.user.FirstName @Model.user.LastName</h1>
@@ -196,17 +133,13 @@
             <p class="text-muted mb-0">120 Listings</p>
         </div>
         <div class="ms-auto me-5" data-button-container>
-            <button class="btn btn-warning me-2 pill">Follow</button>
             <button class="btn btn-warning pill">Chat</button>
         </div>
     </div>
 
     <div class="p-4 border-bottom mb-3 ms-3" style="margin-top:5.5rem ;" data-button-container>
         <a class="btn btn-warning active pill" asp-action="Profile" asp-controller="Account" asp-route-username="@User.Identity.Name">Profile</a>
-        <a class="btn btn-warning me-2 pill" data-section="details">Details</a>
-        <a class="btn btn-warning me-2 pill" data-section="gallery">Gallery</a>
-        <a class="btn btn-warning me-2 pill" data-section="videos">Videos</a>
-        <a class="btn btn-warning me-2 pill" data-section="reviews">Reviews</a>
+        <a class="btn btn-warning me-2 pill" >Details</a>
     </div>
 </div>
 <!--Main content-->
@@ -217,96 +150,132 @@
             <section>
                 <h2 class="fs-5 fw-bold mb-3">Profile</h2>
                 <div class="d-flex flex-column gap-2" data-button-container>
-                    <a class="btn btn-warning w-100 pill active" data-section="reviews">Reviews</a>
+                    <a class="btn btn-warning w-100 pill active " data-section="reviews">Reviews</a>
                     <a class="btn btn-warning me-2 pill" data-section="details">Account Information</a>
-                    <a class="btn btn-warning w-100 pill" asp-action="ManageListings" asp-controller="ProductManager">Manage Listings</a>
-                    <a class="btn btn-warning w-100 pill">My Listings</a>
                 </div>
             </section>
         </div>
         
         <!-- Right Section -->
-        <div class="col-md-7">
-            <!-- Reviews Section -->
-            <div id="reviewsSection" class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h4 class="card-title mb-4">Reviews Summary</h4>
-                    <div class="review-summary">
-                        <!-- Overall Rating -->
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="me-4 text-center">
-                                <h2 class="display-6 fw-bold mb-0">4.5</h2>
-                                <p class="text-muted mb-0">24 reviews</p>
-                            </div>
-                            <div class="flex-grow-1">
-                                @foreach (var rating in new[] { 5, 4, 3, 2, 1 })
+<div class="col-md-7">
+    <!-- Reviews Section -->
+    <div id="reviewsSection" class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h4 class="card-title mb-4">Reviews Summary</h4>
+            <div class="review-summary">
+                <!-- Overall Rating -->
+                <div class="d-flex align-items-center mb-4">
+                    <div class="me-4 text-center">
+                        <h2 class="display-6 fw-bold mb-0">4.5</h2>
+                        <div class="mb-2">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= 4)
                                 {
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="text-muted small me-2" style="width: 20px;">@rating</div>
-                                        <i class="bi bi-star-fill text-warning me-2 small"></i>
-                                        <div class="progress flex-grow-1" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" style="width: @(rating * 20)%"></div>
-                                        </div>
-                                        <span class="text-muted small ms-2">@(rating * 4)</span>
-                                    </div>
+                                    <i class="bi bi-star-fill text-warning"></i>
                                 }
-                            </div>
+                                else if (i - 4.5 <= 0.5)
+                                {
+                                    <i class="bi bi-star-half text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star text-warning"></i>
+                                }
+                            }
                         </div>
+                        <p class="text-muted small mb-0">24 reviews</p>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <button class="btn btn-warning pill" data-bs-toggle="modal" data-bs-target="#writeReviewModal">Write a Review</button>
-                        <a class="btn btn-outline-primary pill" asp-action="AllReviews" asp-controller="Account">See All Reviews</a>
+
+                    <!-- Rating Breakdown -->
+                    <div class="flex-grow-1">
+                        @foreach (var rating in new[] { 5, 4, 3, 2, 1 })
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="text-muted small me-2" style="width: 20px;">@rating</div>
+                                <i class="bi bi-star-fill text-warning me-2 small"></i>
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: @(rating * 20)%"></div>
+                                </div>
+                                <span class="text-muted small ms-2">@(rating * 4)</span>
+                            </div>
+                        }
                     </div>
+                </div>
+            </div>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <button class="btn btn-warning pill" data-bs-toggle="modal" data-bs-target="#writeReviewModal">Write a Review</button>
+                    <a class="btn btn-outline-primary pill" asp-action="AllReviews" asp-controller="Account">See All Reviews</a>
+                </div>
+        </div>
+    </div>
+
+    <!-- Account Details Section -->
+    <div id="detailsSection" class="card border-0 shadow-sm d-none">
+        <div class="card border-0 shadow-sm p-4">
+    <div class="row g-4">
+        <!-- Personal Information -->
+        <div class="col-md-6">
+            <div class="detail-group">
+                <label class="form-label text-muted small">
+                    <i class="bi bi-person me-2"></i>First Name
+                </label>
+                <p class="mb-0 fw-medium">@Model.user.FirstName</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="detail-group">
+                <label class="form-label text-muted small">
+                    <i class="bi bi-person me-2"></i>Last Name
+                </label>
+                <p class="mb-0 fw-medium">@Model.user.LastName</p>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-md-6">
+            <div class="detail-group">
+                <label class="form-label text-muted small">
+                    <i class="bi bi-envelope me-2"></i>Email
+                </label>
+                <p class="mb-0 fw-medium">@Model.user.Email</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class    ="detail-group">
+                <label class="form-label text-muted small">
+                    <i class="bi bi-telephone me-2"></i>Phone Number
+                </label>
+                <p class="mb-0 fw-medium">@Model.user.PhoneNumber</p>
+            </div>
+        </div>
+
+        <!-- Full Address -->
+        <div class="col-12">
+            <div class="detail-group">
+                <label class="form-label text-muted small">
+                    <i class="bi bi-geo-alt me-2"></i>Address
+                </label>
+                <div class="address-details">
+                    <p class="mb-1 fw-medium">@Model.user.Address.AddressLine1</p>
+                    @if (!string.IsNullOrEmpty(Model.user.Address.AddressLine2))
+                    {
+                        <p class="mb-1 fw-medium">@Model.user.Address.AddressLine2</p>
+                    }
+                    <p class="mb-0 fw-medium">
+                        @Model.user.Address.City, @Model.user.Address.State @Model.user.Address.PostalCode
+                    </p>
+                    <p class="mb-0 fw-medium">@Model.user.Address.Country</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Write Review Modal -->
-<div class="modal fade review-modal" data-bs-backdrop="static" id="writeReviewModal" tabindex="-1" aria-labelledby="writeReviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="writeReviewModalLabel">Write a Review</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form asp-action="PostReview" asp-controller="User" asp-route-id="@Model.user.Id" method="post">
-                    <div class="mb-4">
-                        <label class="form-label fw-medium mb-3">Rating</label>
-                        <div class="star-rating">
-                            <input type="radio" asp-for="ReviewRating" id="star5" name="Rating" value="5"/>
-                            <label for="star5" class="bi bi-star-fill"></label>
-                            <input type="radio" asp-for="ReviewRating" id="star4" name="Rating" value="4"/>
-                            <label for="star4" class="bi bi-star-fill"></label>
-                            <input type="radio" asp-for="ReviewRating" id="star3" name="Rating" value="3"/>
-                            <label for="star3" class="bi bi-star-fill"></label>
-                            <input type="radio" asp-for="ReviewRating" id="star2" name="Rating" value="2"/>
-                            <label for="star2"  class="bi bi-star-fill"></label>
-                            <input type="radio" asp-for="ReviewRating" id="star1" name="Rating" value="1"/>
-                            <label for="star1" class="bi bi-star-fill"></label>
-                        </div>
-                    </div>
-                    <div class="mb-4">
-                        <label for="reviewText" class="form-label fw-medium">Your Review</label>
-                        <textarea class="form-control"  asp-for="ReviewComment" id="reviewText" name="ReviewText" 
-                                rows="4" maxlength="500" 
-                                placeholder="Share your experience..."
-                                style="resize: none;"></textarea>
-                        <div class="char-counter">
-                            <span id="charCount">0</span>/500 characters
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-warning w-100 review-submit-btn py-2">
-                        Submit Review
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+</div>
+</div>
 </div>
 
+</div>
 <!-- Recent Listings Section -->
 <div class="shadow rounded border-0 me-4 mt-3" >
     <div class="row d-flex align-items-start">
@@ -340,73 +309,43 @@
     </div>
 </div>
 
-
-<!-- Profile Picture Upload Modal -->
-<div class="modal fade" data-bs-backdrop="static" id="profilePictureModal" tabindex="-1">
+<!-- Write Review Modal -->
+<div class="modal fade review-modal" data-bs-backdrop="static" id="writeReviewModal" tabindex="-1" aria-labelledby="writeReviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0">
-            <div class="modal-header border-0">
-                <h5 class="modal-title">Update Profile Picture</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="writeReviewModalLabel">Write a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <div class="upload-preview mb-3">
-                    <img id="profilePreview" src="#" class="rounded-circle d-none" 
-                        style="width: 150px; height: 150px; object-fit: cover;">
-                </div>
-                <div class="upload-zone p-4 border-2 border-dashed rounded">
-                    <i class="bi bi-cloud-upload fs-2 text-muted"></i>
-                    <p class="mb-0">Drop your image here or click to browse</p>
-                    <!-- File Upload Form -->
-                    <form id="profilePictureForm" asp-action="UploadProfilePicture" asp-controller="Account" method="post" 
-                        enctype="multipart/form-data">
-                        <input type="file" asp-for="ProfilePicture" id="profilePictureInput" name="ProfilePicture" 
-                            accept="image/*" class="d-none">
-                        <label for="profilePictureInput" class="btn btn-outline-primary mt-3">
-                            Select File
-                        </label>
-                    </form>
-                </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" form="profilePictureForm" class="btn btn-warning">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Banner Upload Modal -->
-<div class="modal fade" id="bannerModal" data-bs-backdrop="static" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0">
-            <div class="modal-header border-0">
-                <h5 class="modal-title">Update Banner Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="profileBannerForm" asp-action="UploadProfileBanner" asp-controller="Account" 
-                method="post" enctype="multipart/form-data">
-                <div class="modal-body text-center">
-                    <div class="upload-preview mb-3">
-                        <img id="bannerPreview" src="#" class="d-none w-100 rounded" 
-                            style="max-height: 200px; object-fit: cover;">
+            <div class="modal-body">
+                <form asp-action="PostReview" asp-controller="User" asp-route-id="@Model.user.Id" method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-medium mb-3">Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" asp-for="ReviewRating" id="star5" value="5"/>
+                            <label for="star5" class="bi bi-star-fill"></label>
+                            <input type="radio" asp-for="ReviewRating" id="star4" value="4"/>
+                            <label for="star4" class="bi bi-star-fill"></label>
+                            <input type="radio" asp-for="ReviewRating" id="star3" value="3"/>
+                            <label for="star3" class="bi bi-star-fill"></label>
+                            <input type="radio" asp-for="ReviewRating" id="star2" value="2"/>
+                            <label for="star2" class="bi bi-star-fill"></label>
+                            <input type="radio" asp-for="ReviewRating" id="star1" value="1"/>
+                            <label for="star1" class="bi bi-star-fill"></label>
+                        </div>
+                        <span asp-validation-for="ReviewRating" class="text-danger"></span>
                     </div>
-                    <div class="upload-zone p-4 border-2 border-dashed rounded">
-                        <i class="bi bi-cloud-upload fs-2 text-muted"></i>
-                        <p class="mb-0">Drop your image here or click to browse</p>
-                        <input type="file" asp-for="ProfileBanner" id="profileBannerInput" 
-                            class="d-none" accept="image/*">
-                        <label for="profileBannerInput" class="btn btn-outline-primary mt-3">
-                            Select File
-                        </label>
+                    <div class="mb-4">
+                        <label for="reviewText" class="form-label fw-medium">Your Review</label>
+                        <textarea asp-for="ReviewComment" class="form-control" rows="4" maxlength="500"></textarea>
+                        <span asp-validation-for="ReviewComment" class="text-danger"></span>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500 characters
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning">Save</button>
-                </div>
-            </form>
+                    <button type="submit" class="btn btn-warning w-100 review-submit-btn py-2">Submit Review</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -418,6 +357,18 @@
             const detailsBtn = document.querySelector('[data-section="details"]');
             const reviewsSection = document.getElementById('reviewsSection');
             const detailsSection = document.getElementById('detailsSection');
+
+            //Function to fetch the reviews after the page-item loads
+            fetch(`User/GetUserReviews?username=${@User.Identity.Name}`,{
+                method : 'GET'
+                headers:{
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(Response => Response.json)
+            .then(data => {
+                
+            })
 
             function toggleSections(showSection, hideSection, activeBtn, inactiveBtn) {
                 showSection.classList.remove('d-none');
@@ -435,169 +386,4 @@
             });
         });
     </script>
-    <script>
-        const saveButtons = document.getElementById('saveButtons');
-        const saveButton = document.querySelector('button[type="submit"]');
-
-        function validateForm() {
-            let isValid = true;
-            inputs.forEach(input => {
-                if(input.value.length < 1 && input.hasAttribute('required')) {
-                    isValid = false;
-                }
-            });
-            return isValid;
-        }
-
-        function updateSaveButtonState() {
-            saveButton.disabled = !validateForm();
-            saveButton.classList.toggle('btn-secondary', !validateForm());
-            saveButton.classList.toggle('btn-warning', validateForm());
-        }
-
-
-        inputs.forEach(input => {
-            input.addEventListener('input', updateSaveButtonState);
-        });
-
-        // Set initial state
-        updateSaveButtonState();
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Profile Picture Upload
-            const profilePictureOverlay = document.querySelector('.profile-picture-overlay');
-            const profilePictureModal = document.getElementById('profilePictureModal');
-            const profilePictureInput = document.getElementById('profilePictureInput');
-            const profilePreview = document.getElementById('profilePreview');
-
-            if (profilePictureOverlay && profilePictureModal) {
-                profilePictureOverlay.addEventListener('click', () => {
-                    const modal = new bootstrap.Modal(profilePictureModal);
-                    modal.show();
-                });
-            }
-
-            // Banner Upload
-            const bannerOverlay = document.querySelector('.banner-overlay');
-            const bannerModal = document.getElementById('bannerModal');
-            const bannerInput = document.getElementById('bannerInput');
-            const bannerPreview = document.getElementById('bannerPreview');
-
-            if (bannerOverlay && bannerModal) {
-                bannerOverlay.addEventListener('click', () => {
-                    const modal = new bootstrap.Modal(bannerModal);
-                    modal.show();
-                });
-            }
-
-            // Handle Preview Function
-            const handlePreview = (fileInputId, previewId) => {
-                const fileInput = document.getElementById(fileInputId);
-                const preview = document.getElementById(previewId);
-
-                if (!fileInput || !preview) return;
-
-                fileInput.addEventListener('change', function() {
-                    const file = this.files[0];
-
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            preview.src = e.target.result;
-                            preview.classList.remove('d-none');
-                        }
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-
-            // Initialize preview handlers
-            handlePreview('profilePictureInput', 'profilePreview');
-            handlePreview('bannerInput', 'bannerPreview');
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // File input configuration
-            const FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
-            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-            function handleFileSelect(input, preview, form) {
-                const file = input.files[0];
-                
-                // Validate file type
-                if (!FILE_TYPES.includes(file.type)) {
-                    showError('Please select a valid image file (JPEG, PNG, or GIF)');
-                    input.value = '';
-                    return;
-                }
-
-                // Validate file size
-                if (file.size > MAX_FILE_SIZE) {
-                    showError('File size should not exceed 5MB');
-                    input.value = '';
-                    return;
-                }
-
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove('d-none');
-                }
-                reader.readAsDataURL(file);
-
-                // Enable submit button
-                form.querySelector('button[type="submit"]').disabled = false;
-            }
-
-            function showError(message) {
-                const errorAlert = `
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        ${message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>`;
-                document.querySelector('.modal-body').insertAdjacentHTML('afterbegin', errorAlert);
-            }
-
-    // Profile Picture Upload
-    const profilePictureInput = document.getElementById('profilePictureInput');
-    const profilePreview = document.getElementById('profilePreview');
-    const profileForm = document.getElementById('profilePictureForm');
-
-    if (profilePictureInput) {
-        profilePictureInput.addEventListener('change', () => 
-            handleFileSelect(profilePictureInput, profilePreview, profileForm));
-    }
-
-    // Banner Upload
-    const bannerInput = document.getElementById('profileBannerInput');
-    const bannerPreview = document.getElementById('bannerPreview');
-    const bannerForm = document.getElementById('profileBannerForm');
-
-    if (bannerInput) {
-        bannerInput.addEventListener('change', () => 
-            handleFileSelect(bannerInput, bannerPreview, bannerForm));
-    }
-
-    // Form submission handling
-    [profileForm, bannerForm].forEach(form => {
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const submitButton = this.querySelector('button[type="submit"]');
-                submitButton.disabled = true;
-                submitButton.innerHTML = `
-                    <span class="spinner-border spinner-border-sm me-2"></span>
-                    Uploading...`;
-            });
-        }
-    });
-});
-</script>
-<script>
-    document.getElementById('reviewText').addEventListener('input', function() {
-    document.getElementById('charCount').textContent = this.value.length;
-    });
-</script>
 }
