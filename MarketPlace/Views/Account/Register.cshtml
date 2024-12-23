@@ -80,6 +80,83 @@
 </style>
 
 <div class="container">
+<style>
+    .step-progress {
+        position: relative;
+        padding: 30px 0;
+    }
+    .step-progress .progress {
+        height: 4px;
+        background: #eee;
+    }
+    .step-dots {
+        position: absolute;
+        width: 100%;
+        top: 28px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .step-dot {
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border: 2px solid #ddd;
+        border-radius: 50%;
+        transition: all 0.3s;
+    }
+    .step-dot.active {
+        border-color: #FFD814;
+        background: #FFD814;
+    }
+    .step-dot.completed {
+        background: #003D32;
+        border-color: #003D32;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #003D32;
+        border-color: #003D32;
+    }
+    .btn-primary:hover {
+        background-color: #002820;
+        border-color: #002820;
+    }
+    .upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        cursor: pointer;
+    }
+    
+    .upload-container:hover {
+        border-color: #003D32;
+    }
+    
+    .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        margin: 1rem auto;
+        border-radius: 50%;
+        display: none;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg p-4 mt-5">
@@ -96,6 +173,7 @@
                         <span class="step-dot active" data-step="1"></span>
                         <span class="step-dot" data-step="2"></span>
                         <span class="step-dot" data-step="3"></span>
+                        <span class="step-dot" data-step="4"></span>
                     </div>
                 </div>
 
@@ -106,16 +184,16 @@
                         
                         <!-- Email Group -->
                         <div class="form-group mb-4">
-                            <label class="form-label">Email Address</label>
+                            <label class="form-label">Email Address *</label>
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <input asp-for="Email" class="form-control" 
-                                        placeholder="Enter your email" id="email" />
+                                        placeholder="Enter your email" id="email" required />
                                     <span asp-validation-for="Email" class="text-danger"></span>
                                 </div>
                                 <div class="col-md-6">
                                     <input asp-for="ConfirmEmail" class="form-control" 
-                                        placeholder="Confirm your email" id="confirmEmail" />
+                                        placeholder="Confirm your email" id="confirmEmail" required />
                                     <span id="emailMatch" class="text-danger"></span>
                                 </div>
                             </div>
@@ -124,34 +202,57 @@
                         <!-- Username and Password -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Username</label>
+                                <label class="form-label">Username *</label>
                                 <input asp-for="Username" class="form-control" 
-                                    placeholder="Choose a username" />
-                                <span asp-validation-for="Username" class="text-danger"></span>
+                                    placeholder="Choose a username" required 
+                                    id="username"/>
+                                <span asp-validation-for="Username" id="userNameValidation" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Password</label>
+                                <label class="form-label">Password *</label>
                                 <input asp-for="Password" type="password" 
                                     class="form-control" 
                                     placeholder="Create a password" 
-                                    id="password" />
+                                    id="password"  required/>
                                 <span asp-validation-for="Password" class="text-danger"></span>
                             </div>
                         </div>
 
                         <!-- Confirm Password -->
                         <div class="mb-4">
-                            <label class="form-label">Confirm Password</label>
+                            <label class="form-label">Confirm Password *</label>
                             <input asp-for="ConfirmPassword" type="password" 
                                 class="form-control" 
                                 placeholder="Confirm your password" 
-                                id="confirmPassword" />
-                            <span id="passwordMatch" class="text-danger"></span>
+                                id="confirmPassword"  required/>
+                            <span id="passwordMatchValidation" class="text-danger"></span>
+                        </div>
+
+                        <!-- Password Requirements Checklist -->
+                        <div id="passwordRequirements" class="mb-3">
+                            <p>Password must contain:</p>
+                            <ul class="list-unstyled">
+                                <li id="lengthRequirement" class="text-danger">
+                                    <i class="bi bi-x-circle me-2"></i>At least 8 characters
+                                </li>
+                                <li id="uppercaseRequirement" class="text-danger">
+                                    <i class="bi bi-x-circle me-2"></i>An uppercase letter
+                                </li>
+                                <li id="lowercaseRequirement" class="text-danger">
+                                    <i class="bi bi-x-circle me-2"></i>A lowercase letter
+                                </li>
+                                <li id="numberRequirement" class="text-danger">
+                                    <i class="bi bi-x-circle me-2"></i>A number
+                                </li>
+                                <li id="specialCharRequirement" class="text-danger">
+                                    <i class="bi bi-x-circle me-2"></i>A special character
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
-                    <!-- Step 2: Profile Picture -->
-                    <div class="form-step d-none" id="step2">
+                    <!-- Step 3: Profile Picture -->
+                    <div class="form-step d-none" id="step3">
                         <h4>Profile Picture</h4>
                         <div class="upload-container" id="uploadContainer">
                             <i class="bi bi-cloud-upload upload-icon"></i>
@@ -166,20 +267,53 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Personal Info -->
-                    <div class="form-step d-none" id="step3">
-                        <h4>Personal Information</h4>
-                        <div class="mb-3">
-                            <input asp-for="FirstName" class="form-control" placeholder="First Name" />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                    <!-- Step 2: Personal Info -->
+                    <div class="form-step d-none" id="step2">
+                        <h4 class="mb-4">Personal Information</h4>
+                        <!-- First, Second, and Last Name -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <input asp-for="FirstName" class="form-control" placeholder="First Name" required />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <input asp-for="SecondName" class="form-control" placeholder="Second Name" />
+                                <span asp-validation-for="SecondName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <input asp-for="LastName" class="form-control" placeholder="Last Name" required />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <input asp-for="LastName" class="form-control" placeholder="Last Name" />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
+
+                        <!-- Date of Birth and Gender -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+                                <input asp-for="DateOfBirth" type="date" class="form-control" required
+                                    value="@DateTime.Now.ToString("yyyy-MM-dd")" 
+                                    max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="gender" class="form-label">Gender</label>
+                                <select asp-for="gender" class="form-select" required>
+                                    <option value="" >Select Gender</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Non-binary</option>
+                                    <option>Prefer not to say</option>
+                                </select>
+                                <span asp-validation-for="gender" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" />
-                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+
+                        <!-- Email and Phone Number -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Phone Number" required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
 
@@ -196,14 +330,13 @@
                         <!-- City and Country -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <input asp-for="City" class="form-control" placeholder="City" />
+                                <input asp-for="City" class="form-control" placeholder="City"  required/>
                                 <span asp-validation-for="City" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <select asp-for="Country" class="form-select">
+                                <select asp-for="Country" class="form-select" required>
                                     <option value="">Select Country</option>
-                                    <option value="USA">United States</option>
-                                    <option value="CAN">Canada</option>
+                                    <option value="RSA">South Africa</option>
                                     <!-- Add more countries as needed -->
                                 </select>
                                 <span asp-validation-for="Country" class="text-danger"></span>
@@ -213,13 +346,22 @@
                         <!-- State and Postal Code -->
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <input asp-for="State" class="form-control" placeholder="State/Province" />
+                                <input asp-for="State" class="form-control" placeholder="State/Province"  required/>
                                 <span asp-validation-for="State" class="text-danger"></span>
                             </div>
                             <div class="col-md-6">
-                                <input asp-for="PostalCode" class="form-control" placeholder="Postal Code" />
+                                <input asp-for="PostalCode" class="form-control" placeholder="Postal Code" required />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
+                        </div>
+                        
+                        <!-- Terms Checkbox -->
+                        <div class="form-check mb-3">
+                            <input asp-for="IsAgreedToTerms" class="form-check-input" type="checkbox" required />
+                            <label asp-for="IsAgreedToTerms" class="form-check-label">
+                                I agree to the <a href="#" class="text-decoration-none">terms and conditions</a>
+                            </label>
+                            <span asp-validation-for="IsAgreedToTerms" class="text-danger d-block"></span>
                         </div>
                         
                         <!-- Terms Checkbox -->
@@ -239,6 +381,13 @@
                         <button type="submit" class="btn btn-success" id="submitBtn" style="display:none">Register</button>
                     </div>
                 </form>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" style="display:none">Previous</button>
+                        <button type="button" class="btn btn-warning" id="nextBtn">Next</button>
+                        <button type="submit" class="btn btn-success" id="submitBtn" style="display:none">Register</button>
+                    </div>
             </div>
         </div>
     </div>
@@ -252,37 +401,162 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registrationForm');
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
+    const RegisterBtn = document.getElementById('');
     const submitBtn = document.getElementById('submitBtn');
     const progressBar = document.querySelector('.progress-bar');
 
+    // References to password fields and requirement elements
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const lengthRequirement = document.getElementById('lengthRequirement');
+    const uppercaseRequirement = document.getElementById('uppercaseRequirement');
+    const lowercaseRequirement = document.getElementById('lowercaseRequirement');
+    const numberRequirement = document.getElementById('numberRequirement');
+    const specialCharRequirement = document.getElementById('specialCharRequirement');
+    const PassWordValidationField = document.getElementById('passwordMatchValidation');
+
+    // Initial call to set up the form
+    updateStep(currentStep);
+
+    // Function to validate password requirements
+    function validatePasswordRequirements() {
+        const password = passwordField.value;
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            specialChar: /[!$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+        };
+
+        // Update the checklist
+        updateRequirement(lengthRequirement, requirements.length);
+        updateRequirement(uppercaseRequirement, requirements.uppercase);
+        updateRequirement(lowercaseRequirement, requirements.lowercase);
+        updateRequirement(numberRequirement, requirements.number);
+        updateRequirement(specialCharRequirement, requirements.specialChar);
+    }
+
+    // Function to check if all password requirements are met
+    function checkPasswordRequirements() {
+        const password = passwordField.value;
+        return (
+            password.length >= 8 &&
+            /[A-Z]/.test(password) &&
+            /[a-z]/.test(password) &&
+            /[0-9]/.test(password) &&
+            /[!$%^&*()\-_+=[\]{}|;:'"\\,.<>/?]/.test(password)
+        );
+    }
+
+    // Function to validate confirm password
+    function validateConfirmPassword() {
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+
+        if(password === confirmPassword){
+            PassWordValidationField.textContent = ""
+        }
+        else{
+            PassWordValidationField.textContent ="Passwords document not match"
+        }
+    }
+
+    // Function to update individual requirement
+    function updateRequirement(element, isMet) {
+        const icon = element.querySelector('i');
+        if (isMet) {
+            element.classList.remove('text-danger');
+            element.classList.add('text-success');
+            icon.classList.remove('bi-x-circle');
+            icon.classList.add('bi-check-circle');
+        } else {
+            element.classList.add('text-danger');
+            element.classList.remove('text-success');
+            icon.classList.add('bi-x-circle');
+            icon.classList.remove('bi-check-circle');
+        }
+    }
+
+    // Update the "Next" button state based on current step
+    function updateNextButtonState() {
+        let isValid = true;
+
+        // Select required inputs in the current step
+        currentStepFields.forEach(function(field) {
+            if (!field.value.trim()) {
+                isValid = false;
+            }
+        });
+
+        // Check if password requirements are met in the password step
+        if (currentStep === 1) {
+            const allRequirementsMet = checkPasswordRequirements();
+            const passwordsMatch = passwordField.value === confirmPasswordField.value && confirmPasswordField.value !== '';
+            isValid = isValid && allRequirementsMet && passwordsMatch;
+        }
+
+        if(isValid) {
+            nextBtn.removeAttribute('disabled');
+            nextBtn.classList.remove('btn-secondary');
+            nextBtn.classList.add('btn-warning');
+            submitBtn.classList.add("btn-success")
+            submitBtn.classList.remove("btn-primary")
+        } else {
+            console.log(nextBtn);
+            nextBtn.setAttribute('disabled', 'disabled');
+            nextBtn.classList.remove('btn-warning');
+            nextBtn.classList.add('btn-secondary');
+            submitBtn.classList.add("btn-primary");
+            submitBtn.classList.remove("btn-success");
+        }
+    }
+
+    // Event listeners for password fields
+    passwordField.addEventListener('input', function() {
+        validatePasswordRequirements();
+        updateNextButtonState();
+    });
+
+    confirmPasswordField.addEventListener('input', function() {
+        validateConfirmPassword();
+        updateNextButtonState();
+    });
+
+    // Initial validation on page load
+    validatePasswordRequirements();
+    validateConfirmPassword();
+    updateNextButtonState();
+
+    // Function to update the current step
     function updateStep(step) {
         // Hide all steps
         document.querySelectorAll('.form-step').forEach(s => s.classList.add('d-none'));
         // Show current step
         document.getElementById(`step${step}`).classList.remove('d-none');
-        
+
         // Update progress bar
         progressBar.style.width = `${((step - 1) / (totalSteps - 1)) * 100}%`;
-        
-        // Update dots
-        document.querySelectorAll('.step-dot').forEach((dot, index) => {
-            if (index + 1 < step) {
-                dot.classList.add('completed');
-                dot.classList.remove('active');
-            } else if (index + 1 === step) {
-                dot.classList.add('active');
-                dot.classList.remove('completed');
-            } else {
-                dot.classList.remove('active', 'completed');
-            }
-        });
 
         // Update buttons
         prevBtn.style.display = step === 1 ? 'none' : 'block';
         nextBtn.style.display = step === totalSteps ? 'none' : 'block';
         submitBtn.style.display = step === totalSteps ? 'block' : 'none';
+
+         // Select required inputs in the current step
+        currentStepFields = document.querySelectorAll(`#step${currentStep} [required]`);
+        console.log(currentStepFields);
+            currentStepFields.forEach(function(field) {
+                field.addEventListener('blur', ()=>{
+                    updateNextButtonState();
+                })
+            });
+
+        // Update next button state for the current step
+        updateNextButtonState();
     }
 
+    // Event listeners for navigation buttons
     nextBtn.addEventListener('click', () => {
         if (currentStep < totalSteps) {
             currentStep++;
@@ -296,92 +570,60 @@ document.addEventListener('DOMContentLoaded', function() {
             updateStep(currentStep);
         }
     });
-
-    const uploadContainer = document.getElementById('uploadContainer');
-    const fileInput = document.getElementById('profilePicture');
-    const imagePreview = document.getElementById('imagePreview');
-    const skipButton = document.getElementById('skipButton');
-    const confirmEmail = document.getElementById('confirmEmail');
-    const emailMatch = document.getElementById('emailMatch');
-
-    function validateConfirmFields() {
-        const email = document.getElementById('email');
-        const confirmEmail = document.getElementById('confirmEmail');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const emailMatch = document.getElementById('emailMatch');
-        const passwordMatch = document.getElementById('passwordMatch');
-        const nextBtn = document.getElementById('nextBtn');
-
-        let isValid = true;
-
-        // Validate emails
-        if (confirmEmail.value) {
-            if (email.value !== confirmEmail.value) {
-                emailMatch.textContent = 'Emails do not match';
-                isValid = false;
-            } else {
-                emailMatch.textContent = '';
-            }
-        }
-
-        // Validate passwords
-        if (confirmPassword.value) {
-            if (password.value !== confirmPassword.value) {
-                passwordMatch.textContent = 'Passwords do not match';
-                isValid = false;
-            } else {
-                passwordMatch.textContent = '';
-            }
-        }
-
-        // Update next button state
-        nextBtn.disabled = !isValid;
-        
-        return isValid;
-    }
-
-    uploadContainer.addEventListener('click', () => fileInput.click());
-    
-    uploadContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadContainer.style.borderColor = '#003D32';
-    });
-    
-    uploadContainer.addEventListener('dragleave', () => {
-        uploadContainer.style.borderColor = '#ccc';
-    });
-    
-    uploadContainer.addEventListener('drop', (e) => {
-        e.preventDefault();
-        if (e.dataTransfer.files[0]) {
-            handleFile(e.dataTransfer.files[0]);
-        }
-    });
-    
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-            handleFile(e.target.files[0]);
-        }
-    });
-    
-    skipButton.addEventListener('click', () => {
-        currentStep++;
-        updateStep(currentStep);
-    });
-    
-    function handleFile(file) {
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-                uploadContainer.querySelector('p').style.display = 'none';
-                uploadContainer.querySelector('.upload-icon').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-    }
 });
+</script>
+<script>
+    //This script ensures that the email,username and phone Number entered btn-primary the username agree not already registered
+    document.addEventListener("DOMContentLoaded",function() {
+        const emailField =  document.getElementById("email")
+        const usernameField =  document.getElementById("username")
+        const phoneNumberField =  document.getElementById("phoneNumber")
+
+
+        emailField.addEventListener('blur', function () {
+            const email = emailField.value;
+            if (email) {
+                fetch(`/Account/CheckEmailExists?email=${encodeURIComponent(email)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        if (data) {
+                            // Show error message
+                            emailMatch.textContent = 'Email is already registered';
+                            isValid =false;
+                        } else {
+                            emailMatch.textContent = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        console.log(error);
+                        emailMatch.textContent = 'Unable to verify email at this time.';
+                    });
+            }
+        });
+
+        usernameField.addEventListener('blur', function () {
+            const username = usernameField.value;
+            const ValidationField = document.getElementById("userNameValidation");
+            if (username) {
+                fetch(`/Account/CheckUserNameExists?username=${encodeURIComponent(username)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        if (data) {
+                            ValidationField.textContent = 'username not available';
+                            isValid =false;
+                        } else {
+                            ValidationField.textContent = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        ValidationField.textContent = 'Unable to verify username at this time.';
+                    });
+            }
+        });
+    })
 </script>
 }
