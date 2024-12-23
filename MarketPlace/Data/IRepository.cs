@@ -5,6 +5,7 @@ namespace MarketPlace.Data
     public interface IRepositoryBase<T>
     {
         T GetById(int id);
+        T GetById(string id);
         IEnumerable<T> FindAll();
         IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression);
         void Create(T entity);

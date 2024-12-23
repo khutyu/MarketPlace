@@ -15,6 +15,8 @@ namespace MarketPlace.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +29,8 @@ namespace MarketPlace.Data
             modelBuilder.Entity<Address>().ToTable("Address");
             modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Chat>().ToTable("Chat");
+            modelBuilder.Entity<Review>().ToTable("Review");
+            modelBuilder.Entity<Notification>().ToTable("Notification");
         }
     }
 }

@@ -1,0 +1,315 @@
+@model MarketPlace.Models.ViewModels.AccountSettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+@await Html.PartialAsync("_Alerts")
+<style>
+    .list-group-item {
+        border: none;
+        padding: 1rem 1.5rem;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        color: #000;
+        background-color: #f8f9fa;
+    }
+
+    .list-group-item.active {
+        color: #000;
+        background-color: #FFD814;
+        border-color: #FFD814;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #FFD814;
+        box-shadow: 0 0 0 0.25rem rgba(255, 216, 20, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #FFD814;
+        border-color: #FFD814;
+    }
+
+    .setting-section .bi-chevron-down {
+        transition: transform 0.3s ease;
+    }
+    
+    .setting-section .collapse.show + .bi-chevron-down {
+        transform: rotate(180deg);
+    }
+
+    .setting-section {
+        transition: all 0.3s ease;
+    }
+
+    .setting-section:hover {
+        cursor: pointer;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+<div class="container py-5">
+    <div class="row">
+        <!-- Settings Navigation -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm">
+                <div class="list-group list-group-flush rounded-3">
+                    <button class="list-group-item list-group-item-action active" data-bs-toggle="tab" data-bs-target="#profile">
+                        <i class="bi bi-person me-2"></i>Profile
+                    </button>
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="pill" data-bs-target="#notifications">
+                        <i class="bi bi-bell me-2"></i>Notifications
+                    </button>
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#privacy">
+                        <i class="bi bi-shield-lock me-2"></i>Privacy
+                    </button>
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#security">
+                        <i class="bi bi-key me-2"></i>Security
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- Profile Tab -->
+                <div class="tab-pane fade show active" id="profile">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4">Profile Settings</h4>
+                            
+                            <!-- Personal Information -->
+                            <div class="setting-section mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded" 
+                                    data-bs-toggle="collapse" 
+                                    href="#personalInfo" 
+                                    role="button">
+                                    <div>
+                                        <h6 class="mb-0">Personal Information</h6>
+                                        <small class="text-muted">Update your personal details</small>
+                                    </div>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="collapse" id="personalInfo">
+                                    <div class="p-3 border-top">
+                                        <form asp-action="UpdatePersonalInfo" method="post" asp-controller="Account" asp-route-username="@User.Identity.Name">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label asp-for="FirstName" class="form-label">First Name</label>
+                                                    <input asp-for="FirstName" class="form-control" 
+                                                        value="@Model.FirstName"/>
+                                                    <span asp-validation-for="FirstName"></span>
+                                                    
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label asp-for="SecondName" class="form-label">Second Name</label>
+                                                    <input asp-for="SecondName" class="form-control" 
+                                                        value="@Model.SecondName"/>
+                                                    <span asp-validation-for="@Model.SecondName"></span>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label asp-for="LastName" class="form-label">Last Name</label>
+                                                    <input asp-for="LastName" class="form-control" 
+                                                        value="@Model.LastName"/>
+                                                    <span asp-validation-for="LastName" ></span>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Information -->
+                            <div class="setting-section mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded" 
+                                    data-bs-toggle="collapse" 
+                                    href="#addressInfo" 
+                                    role="button">
+                                    <div>
+                                        <h6 class="mb-0">Address</h6>
+                                        <small class="text-muted">Manage your addresses</small>
+                                    </div>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="collapse" id="addressInfo">
+                                    <div class="p-3 border-top">
+                                        <form asp-action="UpdateAddress" asp-controller="Account" asp-route-username="@User.Identity.Name" method="post">
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <label class="form-label">Street Address</label>
+                                                    <input asp-for="@Model.address.AddressLine1" class="form-control" 
+                                                        value="@Model.address.AddressLine1"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Country</label>
+                                                    <input asp-for="@Model.address.Country" class="form-control"
+                                                           value="@Model.address.Country" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">City</label>
+                                                    <input asp-for="@Model.address.City" class="form-control" 
+                                                        value="@Model.address.City"/>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">State</label>
+                                                    <input asp-for="@Model.address.State" class="form-control" 
+                                                        value="@Model.address.State"/>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Postal Code</label>
+                                                    <input asp-for="@Model.address.PostalCode" class="form-control" 
+                                                        value="@Model.address.PostalCode"/>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-warning">Save Address</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <div class="setting-section mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded" 
+                                    data-bs-toggle="collapse" 
+                                    href="#contactInfo" 
+                                    role="button">
+                                    <div>
+                                        <h6 class="mb-0">Contact Information</h6>
+                                        <small class="text-muted">Update your contact details</small>
+                                    </div>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="collapse" id="contactInfo">
+                                    <div class="p-3 border-top">
+                                        <form asp-action="UpdateContact"  asp-controller="Account" method="post">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Email</label>
+                                                    <input asp-for="@Model.Email" class="form-control"
+                                                        value="@Model.Email"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Phone</label>
+                                                    <input asp-for="@Model.PhoneNumber" class="form-control" 
+                                                        value="@Model.PhoneNumber"/>
+                                                </div>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-warning">Save Contact</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Privacy Tab -->
+                <div class="tab-pane fade" id="privacy">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4">Privacy Settings</h4>
+                            
+                            <!-- Privacy Settings Collapse -->
+                            <div class="setting-section mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded" 
+                                    data-bs-toggle="collapse" 
+                                    href="#privacyInfo" 
+                                    role="button">
+                                    <div>
+                                        <h6 class="mb-0">Privacy Preferences</h6>
+                                        <small class="text-muted">Manage your privacy settings</small>
+                                    </div>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="collapse" id="privacyInfo">
+                                    <div class="p-3 border-top">
+                                        <form asp-action="UpdatePrivacy" method="post" asp-controller="Account">
+                                            <div class="mb-3">
+                                                <label class="form-label">Profile Visibility</label>
+                                                <select  class="form-select">
+                                                    <option value="public">Public</option>
+                                                    <option value="private">Private</option>
+                                                    <option value="friends">Friends Only</option>
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-warning">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="card-title mb-4">Security Settings</h4>
+                            
+                            <!-- Security Settings Collapse -->
+                            <div class="setting-section mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded" 
+                                    data-bs-toggle="collapse" 
+                                    href="#securityInfo" 
+                                    role="button">
+                                    <div>
+                                        <h6 class="mb-0">Password Settings</h6>
+                                        <small class="text-muted">Update your password</small>
+                                    </div>
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                                <div class="collapse" id="securityInfo">
+                                    <div class="p-3 border-top">
+                                        <form asp-action="UpdatePassword" method="post" asp-controller="Account">
+                                            <div class="mb-3">
+                                                <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                                                <input asp-for="CurrentPassword" type="password" class="form-control" required>
+                                                <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label asp-for="NewPassword" class="form-label">New Password</label>
+                                                <input asp-for="NewPassword" type="password" class="form-control" required>
+                                                <span asp-validation-for="NewPassword" class="text-danger"></span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                                                <input asp-for="ConfirmPassword" type="password" class="form-control" required>
+                                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                            </div>
+                                            <button type="submit" class="btn btn-warning">Update Password</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Add rotation animation to chevron icons
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+        button.addEventListener('click', () => {
+            const icon = button.querySelector('.bi-chevron-down');
+            icon.style.transform = icon.style.transform === 'rotate(180deg)' ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    });
+</script>

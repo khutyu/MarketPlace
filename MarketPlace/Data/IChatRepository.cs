@@ -2,7 +2,7 @@
 
 namespace MarketPlace.Data
 {
-    public interface IChatRepository:IRepositoryBase<Chat>
+    public interface IChatRepository : IRepositoryBase<Chat>
     {
     }
 }
