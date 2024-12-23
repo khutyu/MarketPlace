@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Connect</title>
+    <!--  Bootstrap -->
+    <link rel="stylesheet" asp-href-include="/lib/bootstrap/css/bootstrap.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" asp-href-include="/lib/font-awesome/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>Campus Connect</h1>
+        <input type="text" class="search-bar" placeholder="Search">
+        <section class="header-actions">
+            <button class="sell-button">Sell</button>
+            <img src="/images/user-icon.png" alt="User Profile" class="user-profile">
+        </section>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="container-fluid">
+        <section >
+            <ul>
+                <li><a href="/Home/Index">Home</a></li>
+                <li><a href="/Chat">Chat</a></li>
+                <li><a href="/Marketplace">Marketplace</a></li>
+            </ul>
+        </section>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <p>© 2024 Campus Connect</p>
+    </footer>
+</body>
+</html>
