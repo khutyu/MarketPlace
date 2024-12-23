@@ -27,7 +27,7 @@ namespace MarketPlace.Models
         public string ProfileBannerUrl { get; set; }
         public bool IsDeletionRequested { get; set; } = false;
         public DateTime? DeletionRequestedAt { get; set; }
-        public int Rating { get; set; } = 0;
+        public int Rating { get; set; } = 1;
         required
         public Address Address { get; set; }
         public IEnumerable<Comment> Comments { get; set; }

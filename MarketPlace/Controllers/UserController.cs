@@ -21,6 +21,7 @@ public class UserController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user =  _repo._Users.GetWithAddressAndReviews(userId);
+
         var model = new ProfileViewModel
         {
             user = user
@@ -94,14 +95,15 @@ public class UserController : Controller
     public async Task<IActionResult> SearchUsers(string username)
     {
         var users = _repo._Users.FindByCondition(u => u.UserName == username);
+        
         var result = users.Select(user => new
         {
             user.FirstName,
             user.LastName,
             user.UserName,
             user.Email,
-            ProfilePictureUrl = user.ProfilePictureUrl ?? "/images/default-avatar.jpg",
-            ListingCount = user.Products?.Count(),
+            ProfilePictureUrl = user.ProfilePictureUrl ?? "~/images/profile-default.webp",
+            ListingCount = user.Products?.Count() ?? 0,
         });
 
         return Json(result);
@@ -201,6 +203,15 @@ public class UserController : Controller
     public async Task<IActionResult> PostReview(string id, ProfileViewModel model)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = _repo._Users.GetWithAddressAndReviews(userId);
+
+        int averageRating = 0;
+        int count = user.Reviews.Count();
+
+        if(count > 0)
+        {
+            user.Rating = user.Reviews.Sum(r => r.Rating) / count;
+        }
 
         // Validate user and input data
         if (id == null || string.IsNullOrEmpty(id))

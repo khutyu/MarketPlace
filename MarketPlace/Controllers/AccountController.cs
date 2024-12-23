@@ -105,7 +105,7 @@ namespace MarketPlace.Controllers
 
             // Try to create the user with the specified password
             var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
@@ -130,7 +130,6 @@ namespace MarketPlace.Controllers
             }
         }
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> CheckEmailExists(string email)
         {
             if (email.IsNullOrEmpty())
@@ -145,7 +144,6 @@ namespace MarketPlace.Controllers
             return Json(false);
         }
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> CheckUserNameExists(string username)
         {
             if (username.IsNullOrEmpty())

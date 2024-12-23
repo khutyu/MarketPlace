@@ -2,10 +2,6 @@
 @using System
 @using System.Security.Claims
 @using Microsoft.IdentityModel.Tokens
-@{
-    ViewBag.Title = "Profile";
-}
-
 <style>
     .profile-picture-container {
         position: relative;
@@ -122,25 +118,36 @@
         </div>
         <div class="ms-3">
             <h1 class="fs-4 fw-bold mb-0">@Model.user.FirstName @Model.user.LastName</h1>
-            <div class="d-flex align-items-center mb-1">
-                @for (int i = 1; i <= 5; i++)
-                {
-                    if (i <= Math.Floor((double)Model.user.Rating))
+            @if (Model.user != null)
+            {
+                double rating = Model.user.Rating ;
+                int reviewCount = Model.user.Reviews.Count();
+
+                <div class="d-flex align-items-center mb-1">
+                    @for (int i = 1; i <= 5; i++)
                     {
-                        <i class="bi bi-star-fill text-warning"></i>
+                        if (i <= Math.Floor(rating))
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                        else if (i - rating <= 0.5)
+                        {
+                            <i class="bi bi-star-half text-warning"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star text-warning"></i>
+                        }
                     }
-                    else if (i - Model.user.Rating <= 0.5)
-                    {
-                        <i class="bi bi-star-half text-warning"></i>
-                    }
-                    else
-                    {
-                        <i class="bi bi-star text-warning"></i>
-                    }
-                }
-                <span class="ms-2 text-muted">( Reviews)</span>
-            </div>
-            <p class="text-muted mb-0">120 Listings</p>
+                    <span class="ms-2 text-muted">(@reviewCount Reviews)</span>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">User data is not available.</p>
+            }
+
+            <p class="text-muted mb-0">@(Model?.user?.Products?.Count() ?? 0) Listings</p>
         </div>
         <div class="ms-auto me-5" data-button-container>
             <button class="btn btn-warning pill">Chat</button>
@@ -149,7 +156,7 @@
 
     <div class="p-4 border-bottom mb-3 ms-3" style="margin-top:5.5rem ;" data-button-container>
         <a class="btn btn-warning active pill" asp-action="Profile" asp-controller="User">Profile</a>
-        <a class="btn btn-warning me-2 pill" data-section="details" >Details</a>
+        <a class="btn btn-warning me-2 pill" >Details</a>
     </div>
 </div>
 <!--Main content-->
@@ -161,7 +168,7 @@
                 <h2 class="fs-5 fw-bold mb-3">Profile</h2>
                 <div class="d-flex flex-column gap-2" data-button-container>
                     <a class="btn btn-warning w-100 pill active " data-section="reviews">Reviews</a>
-                    <a class="btn btn-warning me-2 pill" data-section="details">Account Information</a>
+                    <a class="btn btn-warning pill w-100" data-section="details">Account Information</a>
                     <a class="btn btn-warning w-100  pill"  asp-action="ManageListings" asp-controller="ProductManager">Manage Listings</a>
                     <a class="btn btn-warning w-100 pill">My Listings</a>
                 </div>
@@ -172,57 +179,11 @@
 <div class="col-md-7">
     <!-- Reviews Section -->
     <div id="reviewsSection" class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-            <h4 class="card-title mb-4">Reviews Summary</h4>
-            <div class="review-summary">
-                <!-- Overall Rating -->
-                <div class="d-flex align-items-center mb-4">
-                    <div class="me-4 text-center">
-                        <h2 class="display-6 fw-bold mb-0">4.5</h2>
-                        <div class="mb-2">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                if (i <= 4)
-                                {
-                                    <i class="bi bi-star-fill text-warning"></i>
-                                }
-                                else if (i - 4.5 <= 0.5)
-                                {
-                                    <i class="bi bi-star-half text-warning"></i>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-star text-warning"></i>
-                                }
-                            }
-                        </div>
-                        <p class="text-muted small mb-0">24 reviews</p>
-                    </div>
-
-                    <!-- Rating Breakdown -->
-                    <div class="flex-grow-1">
-                        @foreach (var rating in new[] { 5, 4, 3, 2, 1 })
-                        {
-                            <div class="d-flex align-items-center mb-2">
-                                <div class="text-muted small me-2" style="width: 20px;">@rating</div>
-                                <i class="bi bi-star-fill text-warning me-2 small"></i>
-                                <div class="progress flex-grow-1" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" style="width: @(rating * 20)%"></div>
-                                </div>
-                                <span class="text-muted small ms-2">@(rating * 4)</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <a class="btn btn-outline-primary pill" asp-action="AllReviews" asp-controller="Account">See All Reviews</a>
-                </div>
-        </div>
+        @await Component.InvokeAsync("ReviewSummary",Model.user.Reviews) 
     </div>
 
     <!-- Account Details Section -->
-    <div id="detailsSection" class="card border-0 shadow-sm d-none">
+    <div id="detailsSection" data-section="details" class="card border-0 shadow-sm d-none">
         <div class="card border-0 shadow-sm p-4">
     <div class="row g-4">
         <!-- Personal Information -->
@@ -297,7 +258,8 @@
                 <a href="#" class="btn btn-warning btn-sm pill">View All</a>
             </div>
             
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+            @if(Model.user.Products != null){
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
                 @foreach (var i in Enumerable.Range(1,4)) 
                 {
                     <div class="col">
@@ -314,12 +276,19 @@
                         </div>
                     </div>
                 }
+                </div>
+            }
+        else{
+            <div class="text-center py-5">
+                <i class="bi bi-box fs-1 text-muted mb-3"></i>
+                <h3 class="fs-5 fw-bold text-muted">No Listings yet</h3>
+                <p class="text-muted mb-4">Check back later for new Listings</p>
             </div>
+        }
         </div>
     </div>
     </div>
 </div>
-
 
 <!-- Profile Picture Upload Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="profilePictureModal" tabindex="-1">
@@ -406,11 +375,15 @@
             }
 
             reviewsBtn.addEventListener('click', () => {
+                console.log("reviews button clicked");
+                console.log(reviewsSection)
                 toggleSections(reviewsSection, detailsSection, reviewsBtn, detailsBtn);
             });
 
             detailsBtn.addEventListener('click', () => {
                 toggleSections(detailsSection, reviewsSection, detailsBtn, reviewsBtn);
+                console.log("Details toggleSections clicked")
+                console.log(detailsSection)
             });
         });
     </script>
