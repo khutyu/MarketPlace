@@ -2,7 +2,7 @@
 
 namespace MarketPlace.Data
 {
-    public interface ICommentRepository : IRepositoryBase<Comment>
+    public interface ICommentRepository:IRepositoryBase<Comment>
     {
     }
 }

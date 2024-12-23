@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 namespace MarketPlace.Data
 {
-    public class ProductRepository : RepositoryBase<Product>, IProductRepository
+    public  class ProductRepository: RepositoryBase<Product>, IProductRepository
     {
 
-        public ProductRepository(AppDbContext _context) : base(_context)
+        public ProductRepository(AppDbContext _context):base(_context)
         {
         }
 

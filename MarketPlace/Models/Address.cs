@@ -31,8 +31,9 @@ namespace MarketPlace.Models
 
         // Foreign key to User
         [Required]
-        [ForeignKey("UserId")]
         public string UserId { get; set; }
 
+        [ForeignKey("UserId")]
+        public User User { get; set; }
     }
 }

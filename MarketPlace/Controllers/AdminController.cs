@@ -15,14 +15,13 @@ namespace MarketPlace.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         protected readonly IRepositoryWrapper _repositoryWrapper;
+
         public AdminController(UserManager<User> userManager, SignInManager<User> signInManager, IRepositoryWrapper repositoryWrapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _repositoryWrapper = repositoryWrapper;
         }
-
-        
 
         [HttpGet]
         public IActionResult Dashboard()
@@ -32,7 +31,17 @@ namespace MarketPlace.Controllers
                 //totalUsers = _userManager.Users.Count(),
             });
         }
-        
+        //Method to Change Account status
+        [HttpPost]
+        // public async Task<IActionResult> ChangeAccountStatus(string id)
+        // {
+        //     if(string.IsNullOrEmpty(id))
+        //         return BadRequest();
+        //     var result =   await _repositoryWrapper._adminServices.ChangeAccountStatusAsync(id);
+        //     return RedirectToAction("Dashboard");
+        // }
+        //Methods to delete a users account
+        [HttpGet]
         public async Task<IActionResult> DeleteUser(string id)
         {
             if (string.IsNullOrEmpty(id))

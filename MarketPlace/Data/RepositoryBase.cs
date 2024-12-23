@@ -35,10 +35,6 @@ namespace MarketPlace.Data
         {
             return _appDbContext.Set<T>().Find(id);
         }
-        public T GetById(string id)
-        {
-            return _appDbContext.Set<T>().Find(id);
-        }
 
         public void Update(T entity)
         {

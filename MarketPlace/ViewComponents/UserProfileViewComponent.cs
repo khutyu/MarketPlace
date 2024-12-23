@@ -12,7 +12,7 @@ public class UserProfileViewComponent : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var user = await _repositoryWrapper._UserServices.GetByUsernameAsync(User.Identity.Name);
+        var user = await _repositoryWrapper._Users.GetByUsernameAsync(User.Identity.Name);
         return View(user);
     }
 }

@@ -1,12 +1,13 @@
-﻿using MarketPlace.Data;
+﻿using MarketPlace.Data.Services;
+using MarketPlace.Data;
 using MarketPlace.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Routing;
-using MarketPlace.Data.Services;
 
 public class RepositoryWrapper : IRepositoryWrapper
 {
     private readonly AppDbContext _appDbContext;
+    private readonly AppIdentityDbContext _appIdentityDbContext;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly IEmailService _emailService;
@@ -19,12 +20,10 @@ public class RepositoryWrapper : IRepositoryWrapper
     private IChatRepository _chats;
     private ICategoryRepository _categories;
     private IAdminUserServices _adminServices;
-    private IReviewRepository _reviewRepository;
-    private IUserRepository _user;
-    private IAddressRepository _address;
 
     public RepositoryWrapper(
         AppDbContext appDbContext,
+        AppIdentityDbContext appIdentityDbContext,
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         IEmailService emailService,
@@ -32,28 +31,17 @@ public class RepositoryWrapper : IRepositoryWrapper
         IUrlHelperFactory urlHelperFactory)
     {
         _appDbContext = appDbContext;
+        _appIdentityDbContext = appIdentityDbContext;
         _userManager = userManager;
         _signInManager = signInManager;
         _emailService = emailService;
         _httpContextAccessor = httpContextAccessor;
         _urlHelperFactory = urlHelperFactory;
 
-        _UserServices = new UserServices(_userManager, _signInManager, _emailService, _httpContextAccessor, _urlHelperFactory);
+        _Users = new UserServices(_userManager, _signInManager, _emailService, _httpContextAccessor, _urlHelperFactory);
     }
 
-    public IUserServices _UserServices { get; }
-    public IUserRepository _Users
-    {
-        get
-        {
-            if (_user == null)
-            {
-                _user = new UserRepository(_appDbContext);
-            }
-            return _user;
-        }
-        set { _user = value; }
-    }
+    public IUserServices _Users { get; }
 
     public ICommentRepository _Comments
     {
@@ -94,42 +82,19 @@ public class RepositoryWrapper : IRepositoryWrapper
         set { _chats = value; }
     }
 
-    public ICategoryRepository _Categories 
-    {
-        get{
-            if (_categories == null){
-                _categories = new CategoryRepository(_appDbContext);
-            }
-            return _categories;
-        }
-        set{_categories = value;}
-    }
 
-    public IReviewRepository _Reviews
-    {
+    public ICategoryRepository _Categories{
         get
         {
-            if(_reviewRepository == null)
+            if (_Categories == null)
             {
-                _reviewRepository = new ReviewRepository(_appDbContext);
+                _Categories = new CategoryRepository(_appDbContext);
             }
-            return _reviewRepository;
+            return _Categories;
         }
-        set {_reviewRepository = value; }
+        set { }
     }
 
-    public IAddressRepository _Addresses
-    {
-        get
-        {
-            if (_address == null)
-            {
-                _address = new AddressRepository(_appDbContext);
-            }
-            return _address;
-        }
-        set { _address = value; }
-    }
 
     public void Save()
     {

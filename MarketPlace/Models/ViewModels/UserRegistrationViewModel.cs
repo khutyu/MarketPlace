@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using MarketPlace.Models;
 using Microsoft.AspNetCore.Http;
 
 public class UserRegistrationViewModel
@@ -37,10 +35,7 @@ public class UserRegistrationViewModel
     public string PhoneNumber { get; set; }
 
     [DataType(DataType.Date)]
-    public DateTime DateOfBirth { get; set; }
-    [Display(Name = "Gender" )]
-    [Required(ErrorMessage = "Gender is required.")]
-    public Gender gender{get;set;}
+    public DateTime? DateOfBirth { get; set; }
 
     [Display(Name = "Profile Picture")]
     public IFormFile ProfilePicture { get; set; }
