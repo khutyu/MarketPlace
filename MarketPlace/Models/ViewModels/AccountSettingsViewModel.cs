@@ -1,6 +1,8 @@
+using MarketPlace.Shared.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace MarketPlace.Models.ViewModels{
+namespace MarketPlace.Models.ViewModels
+{
     public class AccountSettingsViewModel{
         [Required]
         [Display(Name = "First Name")]

@@ -1,4 +1,6 @@
-﻿namespace MarketPlace.Models.ViewModels
+﻿using MarketPlace.Shared.Models;
+
+namespace MarketPlace.Models.ViewModels
 {
 	public class ProductViewModel
 	{

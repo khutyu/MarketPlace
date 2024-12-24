@@ -1,11 +1,9 @@
-using MarketPlace.Models;
-using Microsoft.EntityFrameworkCore;
 using MarketPlace.Models.ViewModels;
+using MarketPlace.Shared;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using MarketPlace.Data;
 
 namespace MarketPlace.Controllers
 {

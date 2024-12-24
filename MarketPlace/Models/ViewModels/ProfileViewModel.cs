@@ -1,4 +1,6 @@
-namespace MarketPlace.Models
+using MarketPlace.Shared.Models;
+
+namespace MarketPlace.Models.ViewModels
 {
     public class ProfileViewModel{
         public User user {get;set;}

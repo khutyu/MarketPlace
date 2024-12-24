@@ -1,9 +1,7 @@
-using MarketPlace.Data;
-using MarketPlace.Models;
+using MarketPlace.Models.ViewModels;
+using MarketPlace.Shared;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using System.Security.Claims;
 
 public class UserController : Controller
@@ -163,39 +161,25 @@ public class UserController : Controller
             return RedirectToAction("Profile", new { username = User.Identity.Name });
         }
     }
-    public async Task<IActionResult> GetNotifications()
-    {
-        var userNotification = await _repo._UserServices.GetUserwithNotificationsAsync(User.Identity.Name);
-        if (userNotification != null)
-        {
-            TempData["ErrorMessage"] = "An error Occurred while fetching your notifications";
-            return View(userNotification);
-        }
-        else
-        {
-            var result = userNotification.Select(notification => new
-            {
-                notification.Message,
-                notification.CreatedAt,
-                notification.IsRead
-            });
-            return Json(result);
-        }
-    }
-
-    [HttpGet]
-    [Authorize]
-    public async Task< IActionResult> GetUserReviews(string username)
-    {
-        if (username == null)
-        {
-            return null;
-        }
-        var user =  await _repo._UserServices.GetByUsernameAsync(username);
-        var reviews =  _repo._Reviews.FindByCondition(r => r.UserId == user.Id);
-
-        return Json(reviews);
-    }
+    //public async Task<IActionResult> GetNotifications()
+    //{
+    //    var userNotification = await _repo._UserServices.GetUserwithNotificationsAsync(User.Identity.Name);
+    //    if (userNotification != null)
+    //    {
+    //        TempData["ErrorMessage"] = "An error Occurred while fetching your notifications";
+    //        return View(userNotification);
+    //    }
+    //    else
+    //    {
+    //        var result = userNotification.Select(notification => new
+    //        {
+    //            notification.Message,
+    //            notification.CreatedAt,
+    //            notification.IsRead
+    //        });
+    //        return Json(result);
+    //    }
+    //}
 
     [Authorize]
     [ValidateAntiForgeryToken]

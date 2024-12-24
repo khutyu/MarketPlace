@@ -1,5 +1,4 @@
-﻿using MarketPlace.Data;
-using Microsoft.AspNetCore.Authorization;
+﻿using MarketPlace.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarketPlace.Controllers

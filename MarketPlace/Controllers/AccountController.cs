@@ -1,16 +1,11 @@
-﻿using Azure.Identity;
-using MarketPlace.Data;
-using MarketPlace.Models;
-using MarketPlace.Models.ViewModels;
+﻿using MarketPlace.Models.ViewModels;
+using MarketPlace.Shared;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Security.Claims;
-using System.Web;
 
 namespace MarketPlace.Controllers
 {
@@ -43,6 +38,9 @@ namespace MarketPlace.Controllers
         {
             if (ModelState.IsValid)
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var user = _repo._Users.GetById("de31bad8-101a-4a90-a02d-5b4c08c7e1e1");
+
                 var result = await _signInManager.PasswordSignInAsync(loginModel.Username,
                                                             loginModel.Password,
                                                             loginModel.RememberMe,
@@ -114,8 +112,11 @@ namespace MarketPlace.Controllers
                 return View(model);
             }
             // Attempt to sign the user in after successful registration
-            var signInResult = await _repo._UserServices.SignInAsync(model.Username, model.Password);
-            if (!signInResult.Success)
+            var signInResult = await _signInManager.PasswordSignInAsync(model.Username,
+                                                             model.Password,
+                                                              false,
+                                                             false);
+            if (!signInResult.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
@@ -164,26 +165,26 @@ namespace MarketPlace.Controllers
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(string Email)
-        {
-            if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
-            {
-                var result = await _repo._UserServices.SendResetTokenAsync(Email);
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> ResetPassword(string Email)
+        //{
+        //    if (ModelState.IsValid && !string.IsNullOrEmpty(Email))
+        //    {
+        //        var result = await _repo._UserServices.SendResetTokenAsync(Email);
 
-                if (result.Success)
-                {
-                    TempData["SuccessMessage"] = "An email has been sent to your address with instructions to reset your password.";
-                    return RedirectToAction("LogIn");
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "There was a problem sending the email. Please try again.";
-                }
-            }
-            return View();
-        }
+        //        if (result.Success)
+        //        {
+        //            TempData["SuccessMessage"] = "An email has been sent to your address with instructions to reset your password.";
+        //            return RedirectToAction("LogIn");
+        //        }
+        //        else
+        //        {
+        //            TempData["ErrorMessage"] = "There was a problem sending the email. Please try again.";
+        //        }
+        //    }
+        //    return View();
+        //}
 
         [HttpGet]
         [Authorize]

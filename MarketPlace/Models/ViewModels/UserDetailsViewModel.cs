@@ -1,5 +1,4 @@
-
-using System.Collections.Generic;
+using MarketPlace.Shared.Models;
 
 namespace MarketPlace.Models.ViewModels
 {

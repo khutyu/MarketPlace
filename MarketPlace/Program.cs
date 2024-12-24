@@ -1,8 +1,8 @@
-using MarketPlace.Models;
-using MarketPlace.Data;
+using MarketPlace.Services;
+using MarketPlace.Shared;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MarketPlace.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,18 +13,19 @@ builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddTransient<IEmailService, EmailService>();
 
-//Adding signalR services 
-builder.Services.AddSignalR();
-
-// Database Contexts
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("Marketplace.Shared") // Specify the migrations assembly
+    )
+);
+
 
 // Identity Configuration
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false; 
+    options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireDigit = true;
@@ -49,10 +50,13 @@ app.UseAuthorization();
 // Route configuration
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=chat}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "marketplace",
+    pattern: "Marketplace/{controller=Home}/{action=Index}/{id?}");
 
 // Seed roles and users
 SeedData.PopulateDatabase(app);
-// mapping existing hubs
-app.MapHub<ChatHub>("/chatHub");
+
 app.Run();

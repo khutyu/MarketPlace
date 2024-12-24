@@ -1,4 +1,3 @@
-// EditProfileViewModel.cs
 using System.ComponentModel.DataAnnotations;
 
 namespace MarketPlace.Models.ViewModels

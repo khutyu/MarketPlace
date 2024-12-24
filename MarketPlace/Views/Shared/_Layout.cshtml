@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -245,7 +246,7 @@
                                         data-bs-toggle="dropdown" 
                                         role="button" 
                                         aria-expanded="false">
-                                        @await Component.InvokeAsync("UserProfile")
+                                        @await Component.InvokeAsync("UserProfile", User.FindFirstValue(ClaimTypes.NameIdentifier))
                                         <i class="bi bi-chevron-down ms-2 text-white"></i>
                                     </div>
                                     

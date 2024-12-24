@@ -1,10 +1,8 @@
-﻿using MailKit.Search;
-using MarketPlace.Data;
-using MarketPlace.Models;
+﻿using MarketPlace.Shared;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Collections;
 
 namespace MarketPlace.Controllers
 {

@@ -1,3 +1,5 @@
+using MarketPlace.Shared.Models;
+
 namespace MarketPlace.Models.ViewModels
 {
     public class UserTableViewModel

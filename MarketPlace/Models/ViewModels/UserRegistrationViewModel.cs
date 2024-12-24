@@ -1,8 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using MarketPlace.Shared.Models;
 using System.ComponentModel.DataAnnotations;
-using MarketPlace.Models;
-using Microsoft.AspNetCore.Http;
 
 public class UserRegistrationViewModel
 {
@@ -69,8 +66,4 @@ public class UserRegistrationViewModel
 
     [Required(ErrorMessage = "You must agree to the terms and conditions.")]
     public bool IsAgreedToTerms { get; set; }
-
-    // Optional fields can be included if necessary
-    // public string SecurityQuestion { get; set; }
-    // public string SecurityAnswer { get; set; }
 }

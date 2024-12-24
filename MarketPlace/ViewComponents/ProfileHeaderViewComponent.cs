@@ -1,4 +1,4 @@
-using MarketPlace.Models;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
 public class ProfileHeaderViewComponent : ViewComponent

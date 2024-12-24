@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using MarketPlace.Models;
-using MarketPlace.Models.ViewModels;
 
 namespace MarketPlace.ViewComponents.ReviewSummaryViewComponent
 {

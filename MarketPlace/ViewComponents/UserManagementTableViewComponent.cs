@@ -1,8 +1,6 @@
-using MarketPlace.Models;
+using MarketPlace.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MarketPlace.ViewComponents
 {
